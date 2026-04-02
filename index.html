@@ -1,0 +1,1101 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Setlist Manager</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bg:#0d0d0f;--surf:#141416;--surf2:#1c1c1f;--surf3:#242428;
+  --border:#272729;--accent:#f5c842;--accent2:#e8834a;
+  --text:#e6e6e2;--muted:#66666e;--green:#4cba82;--red:#df5c5c;--blue:#5c9df5;
+}
+body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:15px;min-height:100vh;}
+
+/* ── TOP BAR */
+.top-bar{position:sticky;top:0;z-index:200;background:var(--surf);border-bottom:1px solid var(--border);padding:10px 16px;}
+.top-bar-row{display:flex;align-items:center;gap:10px;}
+.top-bar h1{font-size:1.5rem;font-weight:800;letter-spacing:2px;color:var(--accent);line-height:1;}
+.btn-new-set{background:var(--accent2);color:#fff;border:none;font-size:0.78rem;font-weight:700;padding:6px 14px;border-radius:6px;cursor:pointer;white-space:nowrap;}
+.btn-new-set:active{opacity:.8;}
+.setlist-tabs{display:flex;gap:6px;overflow-x:auto;padding:8px 0 2px;scrollbar-width:none;}
+.setlist-tabs::-webkit-scrollbar{display:none;}
+.tab{background:var(--surf2);color:var(--muted);border:1px solid var(--border);font-size:0.78rem;font-weight:600;padding:5px 12px;border-radius:20px;cursor:pointer;white-space:nowrap;display:flex;align-items:center;gap:6px;}
+.tab.active{background:var(--accent);color:#000;border-color:var(--accent);}
+.tab .del-tab{font-size:0.9rem;opacity:.6;line-height:1;}
+.tab .del-tab:hover{opacity:1;}
+
+/* ── SEARCH BAR */
+.search-bar{padding:8px 16px;background:var(--surf);border-bottom:1px solid var(--border);}
+.search-bar input{width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);font-size:0.95rem;padding:8px 12px;border-radius:8px;outline:none;-webkit-appearance:none;}
+.search-bar input:focus{border-color:var(--accent);}
+.search-bar input::placeholder{color:var(--muted);}
+
+/* ── SECTION HDR */
+.sec-hdr{padding:7px 16px;font-size:0.72rem;font-weight:800;letter-spacing:3px;color:var(--accent);background:var(--surf2);border-top:1px solid var(--border);border-bottom:1px solid var(--border);text-transform:uppercase;}
+.sec-hdr.pausa{color:var(--red);background:rgba(223,92,92,.08);}
+.sec-hdr.coringas{color:var(--accent2);background:rgba(232,131,74,.08);}
+
+/* ── SONG ROW */
+.song-row{display:flex;align-items:center;gap:10px;padding:12px 16px;border-bottom:1px solid var(--border);background:var(--bg);-webkit-tap-highlight-color:transparent;}
+.song-row.active{background:rgba(245,200,66,.06);border-left:3px solid var(--accent);padding-left:13px;}
+.song-row.hidden{display:none;}
+.s-num{font-size:0.65rem;color:var(--muted);min-width:24px;flex-shrink:0;font-variant-numeric:tabular-nums;}
+.s-info{flex:1;min-width:0;}
+.s-name{font-size:0.9rem;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.s-artist{font-size:0.72rem;color:var(--muted);margin-top:1px;}
+.s-key{font-size:0.65rem;color:var(--accent);background:rgba(245,200,66,.1);padding:2px 7px;border-radius:4px;white-space:nowrap;flex-shrink:0;font-weight:600;}
+.btn-show{background:var(--accent);color:#000;border:none;font-size:0.78rem;font-weight:700;padding:7px 13px;border-radius:6px;cursor:pointer;white-space:nowrap;flex-shrink:0;min-height:36px;min-width:54px;}
+.btn-show:active{opacity:.8;}
+.btn-show.done{background:var(--green);color:#fff;}
+
+/* ── EMPTY STATE */
+.empty-state{padding:48px 24px;text-align:center;color:var(--muted);}
+.empty-state .ico{font-size:2.8rem;opacity:.25;margin-bottom:12px;}
+.empty-state p{font-size:0.85rem;line-height:1.6;}
+.empty-state strong{color:var(--accent2);}
+
+/* ── UPLOAD AREA */
+.upload-zone{margin:20px 16px;border:2px dashed var(--border);border-radius:12px;padding:28px 20px;text-align:center;cursor:pointer;transition:border-color .2s,background .2s;}
+.upload-zone:hover,.upload-zone.drag{border-color:var(--accent2);background:rgba(232,131,74,.04);}
+.upload-zone .ico{font-size:2rem;margin-bottom:8px;}
+.upload-zone p{font-size:0.82rem;color:var(--muted);line-height:1.5;}
+.upload-zone strong{color:var(--accent2);}
+.upload-zone input{display:none;}
+
+/* ── MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:500;display:flex;align-items:flex-end;justify-content:center;padding:0;}
+.modal-overlay.hidden{display:none;}
+.modal{background:var(--surf);border-radius:20px 20px 0 0;width:100%;max-width:600px;max-height:90vh;overflow-y:auto;padding:20px 16px 32px;}
+.modal h2{font-size:1.1rem;font-weight:700;color:var(--text);margin-bottom:4px;}
+.modal .sub{font-size:0.78rem;color:var(--muted);margin-bottom:16px;}
+.modal-close{float:right;background:var(--surf2);border:none;color:var(--muted);font-size:1rem;width:30px;height:30px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+
+/* ── SONG EDIT CARD */
+.song-card{background:var(--surf2);border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:8px;}
+.song-card .row{display:flex;gap:8px;margin-bottom:6px;}
+.song-card input,.song-card select{background:var(--bg);border:1px solid var(--border);color:var(--text);font-size:0.82rem;padding:7px 10px;border-radius:6px;outline:none;width:100%;}
+.song-card input:focus,.song-card select:focus{border-color:var(--accent);}
+.song-card .url-row{display:flex;gap:6px;}
+.song-card .url-status{font-size:0.7rem;padding:2px 0;display:flex;align-items:center;gap:4px;}
+.song-card .url-status.ok{color:var(--green);}
+.song-card .url-status.err{color:var(--red);}
+.song-card .url-status.searching{color:var(--muted);}
+.btn-search-url{background:var(--blue);color:#fff;border:none;font-size:0.75rem;font-weight:700;padding:7px 12px;border-radius:6px;cursor:pointer;white-space:nowrap;flex-shrink:0;}
+.btn-remove-song{background:transparent;border:1px solid var(--border);color:var(--muted);font-size:0.75rem;padding:4px 10px;border-radius:5px;cursor:pointer;margin-top:4px;}
+.btn-remove-song:hover{border-color:var(--red);color:var(--red);}
+
+/* ── PROCESSING */
+.processing{padding:20px 16px;text-align:center;}
+.processing .spinner{width:32px;height:32px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite;margin:0 auto 12px;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.processing p{font-size:0.82rem;color:var(--muted);}
+
+/* ── BUTTONS */
+.btn-primary{background:var(--accent);color:#000;border:none;font-size:0.9rem;font-weight:700;padding:12px;border-radius:8px;cursor:pointer;width:100%;margin-top:8px;}
+.btn-primary:active{opacity:.85;}
+.btn-secondary{background:var(--surf2);color:var(--text);border:1px solid var(--border);font-size:0.85rem;font-weight:600;padding:10px;border-radius:8px;cursor:pointer;width:100%;margin-top:6px;}
+.btn-add-song{background:transparent;border:1px dashed var(--border);color:var(--muted);font-size:0.82rem;padding:10px;border-radius:8px;cursor:pointer;width:100%;margin-top:6px;display:flex;align-items:center;justify-content:center;gap:6px;}
+.btn-add-song:hover{border-color:var(--accent2);color:var(--accent2);}
+
+/* ── NAME INPUT */
+.name-input{background:var(--bg);border:1px solid var(--border);color:var(--text);font-size:0.95rem;font-weight:600;padding:10px 12px;border-radius:8px;outline:none;width:100%;margin-bottom:12px;}
+.name-input:focus{border-color:var(--accent);}
+.label{font-size:0.72rem;font-weight:700;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:5px;display:block;}
+
+/* ── TOAST */
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--green);color:#000;font-size:0.82rem;font-weight:700;padding:10px 20px;border-radius:20px;z-index:999;opacity:0;transition:opacity .3s;pointer-events:none;}
+.toast.show{opacity:1;}
+
+/* ── DESKTOP */
+@media(min-width:700px){
+  body{display:flex;flex-direction:column;height:100vh;overflow:hidden;}
+  .top-bar{flex-shrink:0;}
+  .search-bar{flex-shrink:0;}
+  .main-wrap{flex:1;display:flex;overflow:hidden;}
+  .list-col{flex:1;overflow-y:auto;}
+  .list-col::-webkit-scrollbar{width:3px;}
+  .list-col::-webkit-scrollbar-thumb{background:var(--border);}
+}
+
+/* ── AGENTS PANEL */
+.btn-agents{background:var(--surf2);color:#9b72cf;border:1px solid var(--border);font-size:0.75rem;font-weight:700;padding:6px 12px;border-radius:6px;cursor:pointer;white-space:nowrap;transition:all .15s;}
+.btn-agents:hover,.btn-agents.active{border-color:#9b72cf;background:rgba(155,114,207,.1);}
+.agents-panel{display:none;position:fixed;inset:0;background:var(--bg);z-index:300;overflow-y:auto;flex-direction:column;}
+.agents-panel.open{display:flex;}
+.ap-header{position:sticky;top:0;background:var(--surf);border-bottom:1px solid var(--border);padding:12px 16px;display:flex;align-items:center;gap:10px;flex-shrink:0;}
+.ap-header h2{font-size:1rem;font-weight:700;color:var(--text);flex:1;}
+.btn-close-ap{background:var(--surf2);border:1px solid var(--border);color:var(--text);font-size:0.78rem;font-weight:600;padding:6px 14px;border-radius:6px;cursor:pointer;}
+.ap-task-bar{padding:10px 16px;border-bottom:1px solid var(--border);display:flex;gap:8px;flex-shrink:0;}
+.ap-task-input{flex:1;background:var(--surf2);border:1px solid var(--border);color:var(--text);font-size:0.85rem;padding:8px 12px;border-radius:8px;outline:none;}
+.ap-task-input:focus{border-color:var(--accent);}
+.btn-run-task{background:var(--accent);color:#000;border:none;font-size:0.8rem;font-weight:700;padding:9px 16px;border-radius:8px;cursor:pointer;white-space:nowrap;}
+.btn-run-task:disabled{opacity:.4;cursor:not-allowed;}
+.agent-cards-row{display:flex;gap:8px;overflow-x:auto;padding:10px 16px;border-bottom:1px solid var(--border);scrollbar-width:none;flex-shrink:0;}
+.agent-cards-row::-webkit-scrollbar{display:none;}
+.acard{background:var(--surf2);border:1px solid var(--border);border-radius:10px;padding:10px 12px;min-width:120px;flex-shrink:0;cursor:pointer;transition:all .15s;border-left:3px solid var(--acolor,var(--border));}
+.acard.sel,.acard:hover{background:var(--surf3);}
+.acard-icon{font-size:1.1rem;margin-bottom:3px;}
+.acard-name{font-size:0.75rem;font-weight:700;color:var(--text);}
+.acard-st{font-size:0.62rem;color:var(--muted);font-family:monospace;}
+.ap-chat{flex:1;overflow-y:auto;padding:12px 16px;display:flex;flex-direction:column;gap:10px;min-height:200px;}
+.ap-chat::-webkit-scrollbar{width:3px;}
+.ap-chat::-webkit-scrollbar-thumb{background:var(--border);}
+.chat-msg{display:flex;gap:8px;animation:fadeUp .2s ease;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+.chat-msg.right{flex-direction:row-reverse;}
+.chat-av{width:28px;height:28px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:.85rem;flex-shrink:0;background:var(--surf2);border:1px solid var(--border);}
+.chat-bdy{max-width:82%;}
+.chat-msg.right .chat-bdy{align-items:flex-end;display:flex;flex-direction:column;}
+.chat-lbl{font-size:.6rem;color:var(--muted);font-weight:700;margin-bottom:2px;}
+.chat-bbl{background:var(--surf2);border:1px solid var(--border);border-radius:10px;padding:8px 12px;font-size:.8rem;line-height:1.55;color:var(--text);}
+.chat-msg.right .chat-bbl{background:var(--surf3);}
+.tdots span{display:inline-block;width:4px;height:4px;border-radius:50%;background:var(--muted);animation:td 1.1s infinite;margin:0 1px;}
+.tdots span:nth-child(2){animation-delay:.18s}.tdots span:nth-child(3){animation-delay:.36s}
+@keyframes td{0%,100%{opacity:.2}50%{opacity:1}}
+.quick-acts{padding:8px 16px;border-top:1px solid var(--border);display:flex;flex-wrap:wrap;gap:6px;flex-shrink:0;}
+.qa-btn{background:var(--surf2);border:1px solid var(--border);border-radius:6px;color:var(--muted);font-family:inherit;font-size:.72rem;padding:5px 10px;cursor:pointer;transition:all .12s;}
+.qa-btn:hover{border-color:var(--accent);color:var(--accent);}
+.ap-input-row{padding:10px 16px;border-top:1px solid var(--border);background:var(--surf);display:flex;gap:8px;align-items:flex-end;flex-shrink:0;}
+.ap-ta{flex:1;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:inherit;font-size:.85rem;padding:8px 12px;outline:none;resize:none;min-height:36px;max-height:90px;line-height:1.5;}
+.ap-ta:focus{border-color:#9b72cf;}
+.ap-ta::placeholder{color:var(--muted);}
+.btn-send-ap{background:#9b72cf;color:#fff;border:none;width:36px;height:36px;border-radius:8px;font-size:.9rem;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;}
+@media(min-width:700px){
+  .agents-panel{position:fixed;right:0;top:0;height:100vh;width:400px;inset:auto;right:0;top:0;border-left:1px solid var(--border);box-shadow:-4px 0 20px rgba(0,0,0,.4);}
+}
+
+/* ── EDIT SETLIST */
+.btn-edit-set{background:transparent;border:1px solid var(--border);color:var(--muted);font-size:0.72rem;font-weight:600;padding:4px 10px;border-radius:6px;cursor:pointer;margin-left:auto;flex-shrink:0;}
+.btn-edit-set:hover{border-color:var(--accent2);color:var(--accent2);}
+.add-song-bar{display:flex;gap:8px;padding:12px 16px;background:var(--surf);border-bottom:1px solid var(--border);flex-shrink:0;}
+.add-song-bar input{flex:1;background:var(--bg);border:1px solid var(--border);color:var(--text);font-size:0.85rem;padding:8px 12px;border-radius:8px;outline:none;-webkit-appearance:none;}
+.add-song-bar input:focus{border-color:var(--accent);}
+.add-song-bar input::placeholder{color:var(--muted);}
+.btn-add-quick{background:var(--accent);color:#000;border:none;font-size:0.8rem;font-weight:700;padding:8px 14px;border-radius:8px;cursor:pointer;white-space:nowrap;}
+.song-row .btn-del{display:none;background:transparent;border:none;color:var(--muted);font-size:1rem;cursor:pointer;padding:4px;flex-shrink:0;}
+.song-row .btn-del:hover{color:var(--red);}
+body.editing .song-row .btn-del{display:block;}
+body.editing .btn-show{display:none;}
+body.editing .add-song-bar{display:flex;}
+body:not(.editing) .add-song-bar{display:none;}
+.btn-edit-set.editing{background:rgba(76,186,130,.12);border-color:var(--green);color:var(--green);}
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="top-bar">
+  <div class="top-bar-row">
+    <h1>Setlist</h1>
+    <button class="btn-new-set" onclick="openNewSetlist()">+ Novo</button><button class="btn-edit-set" id="btnEdit" onclick="toggleEdit()">✏️ Editar</button><button class="btn-agents" id="btnAgents" onclick="toggleAgents()">🤖 Agentes</button>
+  </div>
+  <div class="setlist-tabs" id="tabs"></div>
+</div>
+
+<!-- SEARCH -->
+<div class="search-bar">
+  <input type="search" id="searchInput" placeholder="🔍  Buscar música ou artista..." autocomplete="off" autocorrect="off" spellcheck="false"/>
+</div>
+
+<!-- ADD SONG BAR (editing mode only) -->
+<div class="add-song-bar" id="addSongBar">
+  <input id="addName" placeholder="Nome da música..." autocomplete="off"/>
+  <input id="addArtist" placeholder="Artista..." style="max-width:130px" autocomplete="off"/>
+  <input id="addKey" placeholder="Tom" style="max-width:60px" autocomplete="off"/>
+  <button class="btn-add-quick" onclick="quickAddSong()">＋</button>
+</div>
+
+<!-- MAIN -->
+<div class="main-wrap">
+  <div class="list-col" id="listCol"></div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- MODAL: NEW SETLIST -->
+<div class="modal-overlay hidden" id="modalNew">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('modalNew')">✕</button>
+    <h2>Novo Setlist</h2>
+    <p class="sub">Dê um nome e adicione músicas manualmente ou importando um arquivo.</p>
+
+    <label class="label">Nome do Setlist</label>
+    <input class="name-input" id="newSetName" placeholder="Ex: Show 15/04..." />
+
+    <!-- UPLOAD ZONE -->
+    <div class="upload-zone" id="uploadZone" onclick="document.getElementById('fileIn').click()">
+      <div class="ico">📄</div>
+      <p><strong>Importar arquivo</strong><br>Arraste ou toque para selecionar<br><span style="font-size:.75rem">TXT, PDF ou imagem com lista de músicas</span></p>
+      <input type="file" id="fileIn" accept=".txt,.pdf,image/*" onchange="handleFile(this.files[0])"/>
+    </div>
+
+    <div id="processingArea" style="display:none">
+      <div class="processing">
+        <div class="spinner"></div>
+        <p id="processingMsg">Analisando arquivo...</p>
+      </div>
+    </div>
+
+    <div id="songsEditor" style="display:none">
+      <p class="label" style="margin-top:12px">Músicas detectadas</p>
+      <div id="songsList"></div>
+      <button class="btn-add-song" onclick="addSongCard()">＋ Adicionar música</button>
+    </div>
+
+    <button class="btn-primary" onclick="saveNewSetlist()">Salvar Setlist</button>
+    <button class="btn-secondary" onclick="closeModal('modalNew')">Cancelar</button>
+  </div>
+</div>
+
+<!-- MODAL: RENAME -->
+<div class="modal-overlay hidden" id="modalRename">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('modalRename')">✕</button>
+    <h2>Renomear Setlist</h2>
+    <label class="label">Nome</label>
+    <input class="name-input" id="renameInput" />
+    <button class="btn-primary" onclick="confirmRename()">Salvar</button>
+    <button class="btn-secondary" onclick="closeModal('modalRename')">Cancelar</button>
+  </div>
+</div>
+
+<script>
+// ── ANTHROPIC API ─────────────────────────────────────────────────────────────
+async function callClaude(prompt) {
+  const res = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: 1000,
+      messages: [{ role: 'user', content: prompt }]
+    })
+  });
+  const data = await res.json();
+  return data.content?.[0]?.text || '';
+}
+
+// ── STATE ─────────────────────────────────────────────────────────────────────
+let setlists = JSON.parse(localStorage.getItem('setlists') || 'null') || [defaultSetlist()];
+let activeSetId = setlists[0].id;
+let activeRow = null;
+let cifraWin = null;
+let renameTargetId = null;
+
+function defaultSetlist() {
+  return {
+    id: uid(),
+    name: 'Show 21/03/2026',
+    sections: [
+     {label:'SHOW PRINCIPAL', type:'show', songs:[
+      {num:'1',  name:'Verdade',                         key:'F',    artist:'Zeca Pagodinho',   url:'https://www.cifraclub.com.br/zeca-pagodinho/verdade/'},
+      {num:'2',  name:'Ô Irene',                         key:'F',    artist:'Fundo de Quintal', url:'https://www.cifraclub.com.br/fundo-de-quintal/o-irene/'},
+      {num:'3',  name:'Cadê Ioiô',                       key:'Db/F', artist:'Fundo de Quintal', url:'https://www.cifraclub.com.br/fundo-de-quintal/cade-ioio/'},
+      {num:'4',  name:'Bagaço da Laranja',               key:'G',    artist:'Zeca Pagodinho',   url:'https://www.cifraclub.com.br/zeca-pagodinho/bagaco-da-laranja/'},
+      {num:'5',  name:'Cantei Só Pra Distrair',          key:'Bb',   artist:'Fundo de Quintal', url:'https://www.cifraclub.com.br/fundo-de-quintal/cantei-so-pra-distrair--cade-ioio/'},
+      {num:'6',  name:'Nome na Macumba',                 key:'F',    artist:'Zeca Pagodinho',   url:'https://www.cifraclub.com.br/zeca-pagodinho/vou-botar-teu-nome-na-macumba/'},
+      {num:'7',  name:'Batucada dos Nossos Tantans',     key:'Bb',   artist:'Fundo de Quintal', url:'https://www.cifraclub.com.br/fundo-de-quintal/a-batucada-dos-nossos-tantas-/'},
+      {num:'8',  name:'Alma Boemia',                     key:'G',    artist:'Zeca Pagodinho',   url:'https://www.cifraclub.com.br/zeca-pagodinho/alma-boemia/'},
+      {num:'9',  name:'Mania de Voce',                   key:'Am',   artist:'Rita Lee',         url:'https://www.cifraclub.com.br/rita-lee/mania-de-voce/'},
+      {num:'9b', name:'Cabide',                          key:'G',    artist:'Martnalia',        url:'https://www.cifraclub.com.br/martnalia/cabide/'},
+      {num:'10', name:'Amor dos Deuses',                 key:'C',    artist:'Fundo de Quintal', url:'https://www.cifraclub.com.br/fundo-de-quintal/amor-dos-deuses/'},
+      {num:'11', name:'Abuso de Poder',                  key:'Ab',   artist:'Jorge Aragao',     url:'https://www.cifraclub.com.br/jorge-aragao/abuso-de-poder/'},
+      {num:'12', name:'Alem da Razao',                   key:'Eb',   artist:'Jorge Aragao',     url:'https://www.cifraclub.com.br/jorge-aragao/alem-da-razao/'},
+      {num:'13', name:'Tendencia',                       key:'Am',   artist:'Raca Negra',       url:'https://www.cifraclub.com.br/raca-negra/tendencia/'},
+      {num:'14', name:'Se a Fila Andar',                 key:'Bb',   artist:'Toninho Geraes',   url:'https://www.cifraclub.com.br/toninho-geraes/se-a-fila-andar/'},
+      {num:'15', name:'Menina Mulher da Pele Preta',     key:'C#m',  artist:'Jorge Ben Jor',    url:'https://www.cifraclub.com.br/jorge-ben-jor/menina-mulher-da-pele-preta/'},
+      {num:'15b',name:'O Telefone Tocou Novamente',      key:'C#m',  artist:'Jorge Ben Jor',    url:'https://www.cifraclub.com.br/jorge-ben-jor/o-telefone-tocou-novamente/'},
+      {num:'16a',name:'Mama Africa',                    key:'Am',   artist:'Jorge Ben Jor',    url:'https://www.cifraclub.com.br/jorge-ben-jor/mama-africa/'},
+      {num:'16b',name:'Filho Maravilha',               key:'Em',   artist:'Jorge Ben Jor',    url:'https://www.cifraclub.com.br/jorge-ben-jor/filho-maravilha/'},
+      {num:'16c',name:'Por Causa de Voce Menina',       key:'C',    artist:'Jorge Ben Jor',    url:'https://www.cifraclub.com.br/jorge-ben-jor/por-causa-de-voce-menina/'},
+      {num:'16d',name:'Chove Chuva',                    key:'G',    artist:'Jorge Ben Jor',    url:'https://www.cifraclub.com.br/jorge-ben-jor/chove-chuva/'},
+      {num:'16e',name:'Mas Que Nada',                   key:'Am',   artist:'Jorge Ben Jor',    url:'https://www.cifraclub.com.br/jorge-ben-jor/mas-que-nada/'},
+      {num:'17', name:'Apelo',                           key:'A',    artist:'Sensacao',         url:'https://www.cifraclub.com.br/sensacao/apelo/'},
+      {num:'18', name:'Velho Amor',                      key:'A',    artist:'Sensacao',         url:'https://www.cifraclub.com.br/sensacao/velho-amor/'},
+      {num:'19', name:'Pra Gente Se Encontrar de Novo',  key:'A',    artist:'Sensacao',         url:'https://www.cifraclub.com.br/sensacao/pra-gente-se-encontrar-de-novo/'},
+      {num:'20', name:'Sentimento Nu',                   key:'Am',   artist:'Sensacao',         url:'https://www.cifraclub.com.br/sensacao/sentimento-nu/'},
+      {num:'21', name:'Preciso de Mel',                  key:'D',    artist:'Sensacao',         url:'https://www.cifraclub.com.br/sensacao/preciso-desse-mel/'},
+      {num:'22', name:'Maneiras',                        key:'Em',   artist:'Zeca Pagodinho',   url:'https://www.cifraclub.com.br/zeca-pagodinho/maneiras/'},
+      {num:'23', name:'A Semente',                       key:'Dm',   artist:'Bezerra da Silva', url:'https://www.cifraclub.com.br/bezerra-da-silva/a-semente/'},
+      {num:'24', name:'Nao Tem Flagrante',               key:'F',    artist:'Zeca Pagodinho',   url:'https://www.cifraclub.com.br/zeca-pagodinho/nao-tem-flagrante/'},
+      {num:'25', name:'Nomes de Favela',                 key:'Am',   artist:'Fundo de Quintal',     url:'https://www.cifraclub.com.br/fundo-de-quintal/nomes-de-favela/'},
+      {num:'26', name:'Vacilao',                         key:'C',    artist:'Zeca Pagodinho',   url:'https://www.cifraclub.com.br/zeca-pagodinho/vacilao/'},
+      {num:'27', name:'Pai Coruja',                      key:'F',    artist:'Zeca Pagodinho',   url:'https://www.cifraclub.com.br/zeca-pagodinho/pai-coruja/'},
+      {num:'28', name:'Penetra',                         key:'D',    artist:'Zeca Pagodinho',   url:'https://www.cifraclub.com.br/zeca-pagodinho/penetra/'},
+      {num:'29', name:'Meu Nome E Favela',               key:'C',    artist:'Arlindo Cruz',     url:'https://www.cifraclub.com.br/arlindo-cruz/meu-nome-e-favela/'},
+      {num:'30', name:'Caju',                            key:'Em',   artist:'Liniker',          url:'https://www.cifraclub.com.br/liniker/caju/'},
+      {num:'31', name:'Momento Instrumental',            key:'',     artist:'',                 url:''},
+      {num:'32', name:'Naquela Mesa',                    key:'Dm',   artist:'Nelson Goncalves', url:'https://www.cifraclub.com.br/nelson-goncalves/naquela-mesa/'},
+      {num:'33', name:'Feira de Mangaio',                key:'Am',   artist:'Sivuca',            url:'https://www.cifraclub.com.br/sivuca/feira-de-mangaio/'},
+      {num:'34', name:'Linha de Frente',                 key:'Dm',   artist:'Turma do Pagode',            url:'https://www.cifraclub.com.br/turma-do-pagode/linha-de-frente/'},
+      {num:'35a',name:'Fato Consumado',                  key:'',     artist:'Djavan',           url:'https://www.cifraclub.com.br/djavan/fato-consumado/'},
+      {num:'35b',name:'Flor de Liz',                    key:'',     artist:'Djavan',             url:'https://www.cifraclub.com.br/djavan/flor-de-lis/'},
+      {num:'35c',name:'Final Feliz',                    key:'',     artist:'Jorge Vercilo',      url:'https://www.cifraclub.com.br/jorge-vercilo/final-feliz/'},
+      {num:'35d',name:'O Show Tem Que Continuar',       key:'',     artist:'Fundo de Quintal',   url:'https://www.cifraclub.com.br/fundo-de-quintal/o-show-tem-que-continuar/'},
+      {num:'35e',name:'Meu Lugar',                      key:'',     artist:'Arlindo Cruz',        url:'https://www.cifraclub.com.br/arlindo-cruz/o-meu-lugar/'},
+     ]},
+     {label:'PAUSA', type:'pausa', songs:[]},
+     {label:'POS PAUSA', type:'show', songs:[
+      {num:'36', name:'Positividade',                    key:'G',    artist:'Nunez',             url:'https://www.cifraclub.com.br/nunez/positividade/'},
+      {num:'37a',name:'Pescador de Ilusoes',              key:'Am',   artist:'O Rappa',           url:'https://www.cifraclub.com.br/o-rappa/pescador-de-ilusoes/'},
+      {num:'37b',name:'Minha Alma',                         key:'Am',   artist:'O Rappa',           url:'https://www.cifraclub.com.br/o-rappa/minha-alma/'},
+      {num:'38a',name:'Andei So',                        key:'',     artist:'Natiruts',          url:'https://www.cifraclub.com.br/natiruts/andei-so/'},
+      {num:'38b',name:'Zoio de Lula',                   key:'C#m',  artist:'Charlie Brown Jr',  url:'https://www.cifraclub.com.br/charlie-brown-jr/zoio-de-lula/'},
+      {num:'38c',name:'Pontes Indestrutíveis',          key:'Dm',   artist:'Charlie Brown Jr',  url:'https://www.cifraclub.com.br/charlie-brown-jr/pontes-indestrutiveis/'},
+      {num:'39', name:'Minha Fe',                        key:'G',    artist:'Zeca Pagodinho',    url:'https://www.cifraclub.com.br/zeca-pagodinho/minha-fe/'},
+      {num:'40', name:'Agua da Minha Sede',              key:'G',    artist:'Zeca Pagodinho',    url:'https://www.cifraclub.com.br/zeca-pagodinho/agua-da-minha-sede/'},
+      {num:'41', name:'Nao Sou Mais Disso',              key:'A',    artist:'Zeca Pagodinho',    url:'https://www.cifraclub.com.br/zeca-pagodinho/nao-sou-mais-disso/'},
+      {num:'42', name:'Velas pra Sao Jorge',             key:'A',    artist:'Zeca Pagodinho',    url:'https://www.cifraclub.com.br/zeca-pagodinho/pra-sao-jorge/'},
+      {num:'43a',name:'Leal',                              key:'C#m',  artist:'Djonga',            url:'https://www.cifraclub.com.br/djonga/leal/'},
+      {num:'43b',name:'Amor de Fim de Noite',              key:'Gm',   artist:'Orochi',            url:'https://www.cifraclub.com.br/orochi/amor-de-fim-de-noite/'},
+      {num:'44', name:'Tradicao',                        key:'G',    artist:'Nunez',             url:'https://www.cifraclub.com.br/nunez/tradicao/'},
+      {num:'45', name:'Subiram Dois Tiozin',             key:'Bm',   artist:'Criolo',            url:'https://www.cifraclub.com.br/criolo/subirusdoistiozin/'},
+      {num:'46a',name:'Desabafo',                        key:'',     artist:'Fundo de Quintal',  url:'https://www.cifraclub.com.br/fundo-de-quintal/desabafo/'},
+      {num:'46b',name:'Qual E',                         key:'',     artist:'Grupo Revelacao',   url:'https://www.cifraclub.com.br/revelacao/qual-e/'},
+      {num:'46c',name:'Patifaria Popular',              key:'',     artist:'Fundo de Quintal',  url:'https://www.cifraclub.com.br/fundo-de-quintal/patifaria-popular/'},
+      {num:'47a',name:'Praiera',                         key:'C#m',  artist:'Chico Science',     url:'https://www.cifraclub.com.br/chico-science/praiera/'},
+      {num:'47b',name:'Sujeito de Sorte',               key:'E',    artist:'Belchior',          url:'https://www.cifraclub.com.br/belchior/sujeito-de-sorte/'},
+      {num:'48a',name:'Voce Me Vira a Cabeca',          key:'F#m',  artist:'Alcione',           url:'https://www.cifraclub.com.br/alcione/voce-me-vira-cabeca/'},
+      {num:'48b',name:'Mal Acostumado',                 key:'Cm',   artist:'Araketu',           url:'https://www.cifraclub.com.br/araketu/mal-acostumado/'},
+      {num:'49a',name:'Tapao na Raba',                  key:'Dm',   artist:'Ze Felipe',         url:'https://www.cifraclub.com.br/ze-felipe/tapao-na-raba/'},
+      {num:'49b',name:'Rapariga Bom Demais',            key:'Dm',   artist:'Joao Gomes',        url:'https://www.cifraclub.com.br/joao-gomes/rapariga-bom-demais/'},
+      {num:'49c',name:'Piloto',                         key:'C',    artist:'Flora Matos',       url:'https://www.cifraclub.com.br/flora-matos/piloto/'},
+      {num:'49d',name:'Ultima Noite',                   key:'C',    artist:'Araketu',           url:'https://www.cifraclub.com.br/araketu/ultima-noite/'},
+      {num:'50', name:'Natiruts Reggaepower',            key:'F#m',  artist:'Natiruts',          url:'https://www.cifraclub.com.br/natiruts/natiruts-reggae-power/'},
+      {num:'51', name:'FECHAMENTO - Taj Mahal',          key:'G',    artist:'Jorge Ben Jor',     url:'https://www.cifraclub.com.br/jorge-ben-jor/taj-mahal/'},
+     ]},
+     {label:'CORINGAS', type:'coringas', songs:[
+      {num:'C1',  name:'Apague a Luz',                   key:'A',    artist:'Zeca Pagodinho',     url:'https://www.cifraclub.com.br/zeca-pagodinho/apague-a-luz/'},
+      {num:'C2a', name:'O Que E o Amor',                key:'',     artist:'Arlindo Cruz',      url:'https://www.cifraclub.com.br/arlindo-cruz/o-que-o-amor/'},
+      {num:'C2b', name:'O Bem',                         key:'',     artist:'Arlindo Cruz',      url:'https://www.cifraclub.com.br/arlindo-cruz/o-bem/'},
+      {num:'C2c', name:'Alem do Meu Querer',            key:'',     artist:'Arlindo Cruz',      url:'https://www.cifraclub.com.br/arlindo-cruz/alem-do-meu-querer/'},
+      {num:'C2d', name:'Sera que E Amor',               key:'',     artist:'Arlindo Cruz',      url:'https://www.cifraclub.com.br/arlindo-cruz/sera-que-amor/'},
+      {num:'C3',  name:'Minha Missao',                   key:'G',    artist:'Joao Nogueira',      url:'https://www.cifraclub.com.br/joao-nogueira/minha-missao/'},
+      {num:'C4',  name:'Sossego',                        key:'C',    artist:'Tim Maia',           url:'https://www.cifraclub.com.br/tim-maia/sossego/'},
+      {num:'C5',  name:'Baby 95',                        key:'D7M',  artist:'Gal Costa',          url:'https://www.cifraclub.com.br/gal-costa/baby/'},
+      {num:'C6',  name:'Versos Simples',                 key:'D',    artist:'Chimarruts',         url:'https://www.cifraclub.com.br/chimarruts/versos-simples/'},
+      {num:'C7a', name:'Palco',                         key:'',     artist:'Gilberto Gil',       url:'https://www.cifraclub.com.br/gilberto-gil/palco/'},
+      {num:'C7b', name:'Azul',                           key:'',     artist:'Gal Costa',          url:'https://www.cifraclub.com.br/gal-costa/azul/'},
+      {num:'C8',  name:'Samurai',                        key:'C#m',  artist:'Djavan',             url:'https://www.cifraclub.com.br/djavan/samurai/'},
+      {num:'C9',  name:'Falando Segredo',                key:'Dm',   artist:'Fundo de Quintal',   url:'https://www.cifraclub.com.br/fundo-de-quintal/falando-segredo/'},
+      {num:'C10', name:'Do Jeito que a Vida Quer',       key:'Dm',   artist:'Fundo de Quintal',   url:'https://www.cifraclub.com.br/fundo-de-quintal/do-jeito-que-a-vida-quer/'},
+      {num:'C11', name:'Retrato Cantado de um Amor',     key:'Dm',   artist:'Fundo de Quintal',   url:'https://www.cifraclub.com.br/fundo-de-quintal/retrato-cantado-de-um-amor/'},
+      {num:'C12', name:'Trem das 11',                    key:'Dm',   artist:'Demonios da Garoa',  url:'https://www.cifraclub.com.br/demonios-da-garoa/trem-das-onze/'},
+      {num:'C13', name:'Brilho no Olhar',                key:'D',    artist:'Reinaldo',          url:'https://www.cifraclub.com.br/reinaldo/brilho-no-olhar/'},
+      {num:'C14', name:'Lindo Lago do Amor',             key:'Bm',   artist:'Gonzaguinha',    url:'https://www.cifraclub.com.br/gonzaguinha/lindo-lago-do-amor/'},
+      {num:'C15', name:'Morena Tropicana',               key:'E',    artist:'Alceu Valenca',      url:'https://www.cifraclub.com.br/alceu-valenca/morena-tropicana/'},
+      {num:'C16', name:'Sorriso Aberto',                 key:'Gm',   artist:'Jovelina Perola Negra', url:'https://www.cifraclub.com.br/jovelina-perola-negra/sorriso-aberto/'},
+      {num:'C17', name:'Vai Vadiar',                     key:'Dm',   artist:'Zeca Pagodinho',     url:'https://www.cifraclub.com.br/zeca-pagodinho/vai-vadiar/'},
+      {num:'C18', name:'Aonde Voce Mora',                key:'G',    artist:'Cidade Negra',       url:'https://www.cifraclub.com.br/cidade-negra/onde-voce-mora/'},
+      {num:'C19', name:'Seu Balance',                    key:'D',    artist:'Zeca Pagodinho',     url:'https://www.cifraclub.com.br/zeca-pagodinho/seu-balance/'},
+      {num:'C20', name:'Faixa Amarela',                  key:'D',    artist:'Zeca Pagodinho',     url:'https://www.cifraclub.com.br/zeca-pagodinho/faixa-amarela/'},
+      {num:'C21', name:'Nos Pagode da Vida',             key:'G',    artist:'Pagode da Tia Doca', url:'https://www.cifraclub.com.br/pagode-da-tia-doca/nos-pagodes-da-vida/'},
+     ]},
+    ]
+  };
+}
+
+function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2); }
+function save() { localStorage.setItem('setlists', JSON.stringify(setlists)); }
+function toast(msg) {
+  var t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(function(){ t.classList.remove('show'); }, 2200);
+}
+
+// ── TABS ─────────────────────────────────────────────────────────────────────
+function renderTabs() {
+  var tabs = document.getElementById('tabs');
+  tabs.innerHTML = '';
+  setlists.forEach(function(sl) {
+    var t = document.createElement('div');
+    t.className = 'tab' + (sl.id === activeSetId ? ' active' : '');
+    t.innerHTML = '<span onclick="switchSet(\'' + sl.id + '\')">' + sl.name + '</span>' +
+      (setlists.length > 1 ? '<span class="del-tab" onclick="deleteSet(\'' + sl.id + '\')">×</span>' : '');
+    t.querySelector('span').ondblclick = function(){ openRename(sl.id); };
+    tabs.appendChild(t);
+  });
+}
+
+function switchSet(id) {
+  activeSetId = id;
+  activeRow = null;
+  renderTabs();
+  renderList();
+}
+
+function deleteSet(id) {
+  if (!confirm('Excluir este setlist?')) return;
+  setlists = setlists.filter(function(s){ return s.id !== id; });
+  if (activeSetId === id) activeSetId = setlists[0].id;
+  save(); renderTabs(); renderList();
+}
+
+function openRename(id) {
+  renameTargetId = id;
+  var sl = setlists.find(function(s){ return s.id === id; });
+  document.getElementById('renameInput').value = sl.name;
+  document.getElementById('modalRename').classList.remove('hidden');
+}
+
+function confirmRename() {
+  var sl = setlists.find(function(s){ return s.id === renameTargetId; });
+  if (sl) sl.name = document.getElementById('renameInput').value || sl.name;
+  save(); closeModal('modalRename'); renderTabs();
+}
+
+// ── RENDER LIST ───────────────────────────────────────────────────────────────
+function renderList() {
+  var col = document.getElementById('listCol');
+  col.innerHTML = '';
+  var sl = setlists.find(function(s){ return s.id === activeSetId; });
+  if (!sl) return;
+
+  var total = 0;
+  sl.sections.forEach(function(sec) {
+    var h = document.createElement('div');
+    h.className = 'sec-hdr' + (sec.type==='pausa'?' pausa':sec.type==='coringas'?' coringas':'');
+    h.textContent = sec.label;
+    col.appendChild(h);
+    if (sec.type === 'pausa') return;
+
+    sec.songs.forEach(function(song) {
+      total++;
+      var vk = song.key && song.key !== '—';
+      var row = document.createElement('div');
+      row.className = 'song-row';
+      row.dataset.q = (song.name + ' ' + song.artist).toLowerCase();
+      row.innerHTML =
+        '<span class="s-num">' + song.num + '</span>' +
+        '<div class="s-info">' +
+          '<div class="s-name">' + song.name + '</div>' +
+          (song.artist ? '<div class="s-artist">' + song.artist + '</div>' : '') +
+        '</div>' +
+        (vk ? '<span class="s-key">' + song.key + '</span>' : '') +
+        '<button class="btn-show" ' + (!song.url ? 'style="opacity:.4"' : '') + '>SHOW</button>';
+
+      (function(secRef, songIdx) {
+        var delBtn = document.createElement('button');
+        delBtn.className = 'btn-del';
+        delBtn.innerHTML = '×';
+        delBtn.title = 'Remover';
+        delBtn.onclick = function(e){ e.stopPropagation(); deleteSongByIndex(secRef, songIdx); };
+        row.appendChild(delBtn);
+      })(sec, sec.songs.indexOf(song));
+
+      row.querySelector('.btn-show').onclick = function(e) {
+        e.stopPropagation();
+        if (!song.url) { toast('Sem link para esta música'); return; }
+        activate(row, song.url);
+      };
+      row.onclick = function() {
+        if (song.url) activate(row, song.url);
+      };
+      col.appendChild(row);
+    });
+  });
+
+  // Update badge
+  document.querySelector('.top-bar h1').title = total + ' músicas';
+
+  // Re-apply search filter
+  var q = document.getElementById('searchInput').value.toLowerCase().trim();
+  if (q) filterRows(q);
+}
+
+function activate(row, url) {
+  if (activeRow) {
+    activeRow.classList.remove('active');
+    var btn = activeRow.querySelector('.btn-show');
+    if (btn) { btn.textContent = 'SHOW'; btn.classList.remove('done'); }
+  }
+  activeRow = row;
+  row.classList.add('active');
+  var btn = row.querySelector('.btn-show');
+  btn.textContent = '▶'; btn.classList.add('done');
+
+  if (window.innerWidth < 700) {
+    window.open(url, '_blank');
+  } else {
+    if (cifraWin && !cifraWin.closed) {
+      cifraWin.location.href = url; cifraWin.focus();
+    } else {
+      var pw=980,ph=780;
+      cifraWin = window.open(url,'Cifra',
+        'width='+pw+',height='+ph+',left='+Math.round((screen.width-pw)/2)+',top='+Math.round((screen.height-ph)/2)+',resizable=yes,scrollbars=yes');
+    }
+  }
+}
+
+// ── SEARCH ────────────────────────────────────────────────────────────────────
+document.getElementById('searchInput').addEventListener('input', function() {
+  filterRows(this.value.toLowerCase().trim());
+});
+
+function filterRows(q) {
+  document.querySelectorAll('.song-row').forEach(function(r) {
+    r.classList.toggle('hidden', q !== '' && !r.dataset.q.includes(q));
+  });
+}
+
+// ── NEW SETLIST MODAL ─────────────────────────────────────────────────────────
+var pendingSongs = [];
+
+function openNewSetlist() {
+  pendingSongs = [];
+  document.getElementById('newSetName').value = '';
+  document.getElementById('processingArea').style.display = 'none';
+  document.getElementById('songsEditor').style.display = 'none';
+  document.getElementById('songsList').innerHTML = '';
+  document.getElementById('fileIn').value = '';
+  document.getElementById('modalNew').classList.remove('hidden');
+}
+
+function closeModal(id) {
+  document.getElementById(id).classList.add('hidden');
+}
+
+// ── FILE HANDLING ─────────────────────────────────────────────────────────────
+async function handleFile(file) {
+  if (!file) return;
+  document.getElementById('processingArea').style.display = 'block';
+  document.getElementById('songsEditor').style.display = 'none';
+  setProcessingMsg('Lendo arquivo...');
+
+  var text = '';
+  try {
+    if (file.type === 'text/plain') {
+      text = await file.text();
+    } else if (file.type === 'application/pdf') {
+      text = await readPDF(file);
+    } else if (file.type.startsWith('image/')) {
+      text = await readImage(file);
+    }
+  } catch(e) {
+    setProcessingMsg('Erro ao ler arquivo. Tente TXT.');
+    return;
+  }
+
+  if (!text.trim()) {
+    setProcessingMsg('Nenhum texto encontrado no arquivo.');
+    return;
+  }
+
+  setProcessingMsg('Analisando músicas com IA...');
+  try {
+    var songs = await analyzeSongs(text);
+    pendingSongs = songs;
+    setProcessingMsg('Buscando links no Cifra Club...');
+    await searchLinks(songs);
+    renderSongsEditor(songs);
+    document.getElementById('processingArea').style.display = 'none';
+    document.getElementById('songsEditor').style.display = 'block';
+  } catch(e) {
+    setProcessingMsg('Erro na análise. Verifique sua conexão.');
+  }
+}
+
+function setProcessingMsg(msg) {
+  document.getElementById('processingMsg').textContent = msg;
+}
+
+async function readPDF(file) {
+  // Use PDF.js from CDN
+  return new Promise(function(resolve) {
+    var script = document.createElement('script');
+    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
+    script.onload = async function() {
+      try {
+        var pdfjsLib = window['pdfjs-dist/build/pdf'];
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+        var ab = await file.arrayBuffer();
+        var pdf = await pdfjsLib.getDocument({ data: ab }).promise;
+        var texts = [];
+        for (var i = 1; i <= pdf.numPages; i++) {
+          var page = await pdf.getPage(i);
+          var content = await page.getTextContent();
+          texts.push(content.items.map(function(s){ return s.str; }).join(' '));
+        }
+        resolve(texts.join('\n'));
+      } catch(e) { resolve(''); }
+    };
+    script.onerror = function(){ resolve(''); };
+    document.head.appendChild(script);
+  });
+}
+
+async function readImage(file) {
+  // Convert to base64 and send to Claude vision
+  return new Promise(function(resolve) {
+    var reader = new FileReader();
+    reader.onload = async function(e) {
+      var b64 = e.target.result.split(',')[1];
+      var mediaType = file.type;
+      try {
+        var res = await fetch('https://api.anthropic.com/v1/messages', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            model: 'claude-sonnet-4-20250514',
+            max_tokens: 1000,
+            messages: [{
+              role: 'user',
+              content: [
+                { type: 'image', source: { type: 'base64', media_type: mediaType, data: b64 } },
+                { type: 'text', text: 'Transcreva todo o texto desta imagem exatamente como está.' }
+              ]
+            }]
+          })
+        });
+        var data = await res.json();
+        resolve(data.content?.[0]?.text || '');
+      } catch(e) { resolve(''); }
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+// ── ANALYZE SONGS WITH CLAUDE ─────────────────────────────────────────────────
+async function analyzeSongs(text) {
+  var prompt = 'Analise este texto de setlist e extraia cada música com nome, tom (key) e artista se mencionado.\n\nTexto:\n' + text + '\n\nResponda APENAS com JSON array, sem markdown, sem explicação:\n[{"num":"1","name":"Nome da Música","key":"Am","artist":"Artista"},...]\n\nSe não souber o artista, deixe vazio. Se não houver tonalidade, deixe key vazio.';
+
+  var resp = await callClaude(prompt);
+  var clean = resp.replace(/```json|```/g, '').trim();
+  // Find JSON array in response
+  var match = clean.match(/\[[\s\S]*\]/);
+  if (!match) return [];
+  return JSON.parse(match[0]);
+}
+
+// ── SEARCH CIFRA CLUB LINKS ────────────────────────────────────────────────────
+async function searchLinks(songs) {
+  for (var i = 0; i < songs.length; i++) {
+    var song = songs[i];
+    if (!song.name) continue;
+    var slug = toSlug(song.name);
+    var artistSlug = song.artist ? toSlug(song.artist) : '';
+    // Try direct URL construction
+    if (artistSlug) {
+      song.url = 'https://www.cifraclub.com.br/' + artistSlug + '/' + slug + '/';
+    } else {
+      song.url = 'https://www.cifraclub.com.br/' + slug + '/';
+    }
+    setProcessingMsg('Buscando ' + (i+1) + '/' + songs.length + ': ' + song.name);
+    await sleep(50); // small delay between songs
+  }
+}
+
+function toSlug(str) {
+  return str.toLowerCase()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9\s-]/g, '')
+    .trim().replace(/\s+/g, '-');
+}
+
+function sleep(ms) { return new Promise(function(r){ setTimeout(r, ms); }); }
+
+// ── SONGS EDITOR ──────────────────────────────────────────────────────────────
+function renderSongsEditor(songs) {
+  var list = document.getElementById('songsList');
+  list.innerHTML = '';
+  songs.forEach(function(song, i) {
+    list.appendChild(makeSongCard(song, i));
+  });
+}
+
+function makeSongCard(song, i) {
+  var card = document.createElement('div');
+  card.className = 'song-card';
+  card.dataset.idx = i;
+  card.innerHTML =
+    '<div class="row">' +
+      '<input placeholder="Nome da música" value="' + esc(song.name||'') + '" data-field="name" style="flex:2"/>' +
+      '<input placeholder="Tom" value="' + esc(song.key||'') + '" data-field="key" style="flex:.6"/>' +
+    '</div>' +
+    '<div class="row">' +
+      '<input placeholder="Artista (opcional)" value="' + esc(song.artist||'') + '" data-field="artist"/>' +
+    '</div>' +
+    '<div class="url-row">' +
+      '<input placeholder="URL Cifra Club" value="' + esc(song.url||'') + '" data-field="url" style="font-size:.7rem"/>' +
+      '<button class="btn-search-url" onclick="searchOneLink(this)">🔍</button>' +
+    '</div>' +
+    '<div class="url-status searching" data-status>' + (song.url ? '✓ Link definido' : '⚠ Sem link') + '</div>' +
+    '<button class="btn-remove-song" onclick="removeSongCard(this)">Remover</button>';
+
+  card.querySelectorAll('input[data-field]').forEach(function(inp) {
+    inp.addEventListener('input', function() {
+      var idx = parseInt(card.dataset.idx);
+      pendingSongs[idx][this.dataset.field] = this.value;
+    });
+  });
+  return card;
+}
+
+function addSongCard() {
+  var newSong = { num: String(pendingSongs.length+1), name:'', key:'', artist:'', url:'' };
+  pendingSongs.push(newSong);
+  var list = document.getElementById('songsList');
+  list.appendChild(makeSongCard(newSong, pendingSongs.length-1));
+}
+
+function removeSongCard(btn) {
+  var card = btn.closest('.song-card');
+  var idx = parseInt(card.dataset.idx);
+  pendingSongs.splice(idx, 1);
+  renderSongsEditor(pendingSongs);
+}
+
+async function searchOneLink(btn) {
+  var card = btn.closest('.song-card');
+  var idx = parseInt(card.dataset.idx);
+  var song = pendingSongs[idx];
+  var nameInp = card.querySelector('[data-field="name"]');
+  var artistInp = card.querySelector('[data-field="artist"]');
+  var urlInp = card.querySelector('[data-field="url"]');
+  var status = card.querySelector('[data-status]');
+
+  song.name = nameInp.value;
+  song.artist = artistInp.value;
+
+  status.textContent = '⏳ Buscando...';
+  status.className = 'url-status searching';
+
+  var slug = toSlug(song.name);
+  var artistSlug = song.artist ? toSlug(song.artist) : '';
+  var url = artistSlug
+    ? 'https://www.cifraclub.com.br/' + artistSlug + '/' + slug + '/'
+    : 'https://www.cifraclub.com.br/' + slug + '/';
+
+  song.url = url;
+  urlInp.value = url;
+  status.textContent = '✓ Link gerado';
+  status.className = 'url-status ok';
+}
+
+function esc(str) {
+  return String(str).replace(/"/g, '&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// ── SAVE SETLIST ──────────────────────────────────────────────────────────────
+function saveNewSetlist() {
+  var name = document.getElementById('newSetName').value.trim() || 'Setlist ' + (setlists.length+1);
+  var songs = pendingSongs.filter(function(s){ return s.name; });
+  if (!songs.length) {
+    // Create empty setlist
+    songs = [];
+  }
+  var newSl = {
+    id: uid(),
+    name: name,
+    sections: [{
+      label: name,
+      type: 'show',
+      songs: songs.map(function(s, i) {
+        return { num: s.num || String(i+1), name: s.name, key: s.key||'', artist: s.artist||'', url: s.url||'' };
+      })
+    }]
+  };
+  setlists.push(newSl);
+  activeSetId = newSl.id;
+  save();
+  closeModal('modalNew');
+  renderTabs();
+  renderList();
+  toast('Setlist "' + name + '" criado!');
+}
+
+// ── DRAG & DROP UPLOAD ────────────────────────────────────────────────────────
+var zone = document.getElementById('uploadZone');
+zone.addEventListener('dragover', function(e){ e.preventDefault(); zone.classList.add('drag'); });
+zone.addEventListener('dragleave', function(){ zone.classList.remove('drag'); });
+zone.addEventListener('drop', function(e){
+  e.preventDefault(); zone.classList.remove('drag');
+  var f = e.dataTransfer.files[0];
+  if (f) handleFile(f);
+});
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+renderTabs();
+renderList();
+
+// ── AGENTS ────────────────────────────────────────────────────────────────────
+var agentsOpen = false;
+var selAgentId = 'orchestrator';
+var apRunning = false;
+
+function getSetlistContext() {
+  // Active setlist — full detail
+  var sl = setlists.find(function(s){ return s.id === activeSetId; });
+  if (!sl) return 'Nenhum setlist ativo.';
+  var lines = [];
+  sl.sections.forEach(function(sec){
+    if (sec.type === 'pausa') { lines.push('--- PAUSA ---'); return; }
+    lines.push('['+sec.label+']');
+    sec.songs.forEach(function(s){
+      lines.push(s.num+'. '+s.name+' | '+( s.artist||'?')+' | Tom:'+(s.key||'?')+' | '+(s.url||'SEM URL'));
+    });
+  });
+  var total = lines.filter(function(l){ return /^\d/.test(l); }).length;
+  var ctx = '=== SETLIST ATIVO: "'+sl.name+'" ('+total+' músicas) ===\n'+lines.join('\n');
+
+  // Other setlists — summary
+  var others = setlists.filter(function(s){ return s.id !== activeSetId; });
+  if (others.length > 0) {
+    ctx += '\n\n=== OUTROS SETLISTS SALVOS ===';
+    others.forEach(function(other){
+      var otherSongs = [];
+      other.sections.forEach(function(sec){
+        if (sec.type !== 'pausa') sec.songs.forEach(function(s){ otherSongs.push(s.name+' ('+s.artist+')'); });
+      });
+      ctx += '\n"'+other.name+'" ('+otherSongs.length+' músicas): '+otherSongs.slice(0,8).join(', ')+(otherSongs.length>8?' ...':'');
+    });
+  }
+  return ctx;
+}
+
+var AP_SYS = {
+  orchestrator: function(){
+    return 'Você é o Orquestrador do app Setlist Manager. Tem acesso a TODOS os setlists salvos. Responda perguntas sobre qualquer setlist, compare repertórios, identifique músicas em comum. Seja direto, máx 120 palavras.\n\n'+getSetlistContext();
+  },
+  researcher: function(){
+    return 'Você é o Pesquisador do Cifra Club com acesso a TODOS os setlists. Use web_search para verificar URLs. Pode comparar músicas entre setlists, identificar duplicatas, sugerir links corretos. Máx 150 palavras.\n\n'+getSetlistContext();
+  },
+  validator: function(){
+    return 'Você é o Validador com acesso a TODOS os setlists. Verifica URLs via web, indica ✅ OK ⚠️ SUSPEITO ❌ ERRO. Pode cruzar dados entre setlists para encontrar inconsistências. Máx 150 palavras.\n\n'+getSetlistContext();
+  },
+  corrector: function(){
+    return 'Você é o Corretor com acesso a TODOS os setlists. Aplica correções no setlist ativo e pode reaproveitar dados corretos de outros setlists. Informe correção exata (URL formato cifraclub.com.br/artista/musica). Máx 150 palavras.\n\n'+getSetlistContext();
+  },
+  user: function(){
+    return 'Você é um músico que conhece TODOS os setlists salvos. Responde perguntas sobre qualquer repertório, compara shows, comenta sobre músicas. Seja coloquial. Máx 80 palavras.\n\n'+getSetlistContext();
+  }
+};
+var AP_INFO = {
+  orchestrator:{icon:'🎯',name:'Orquestrador'},
+  researcher:{icon:'🔍',name:'Pesquisador'},
+  validator:{icon:'✅',name:'Validador'},
+  corrector:{icon:'🔧',name:'Corretor'},
+  user:{icon:'🎸',name:'Usuário'}
+};
+
+async function callClaudeAgent(prompt, system, useSearch) {
+  try {
+    var body = {
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: 1000,
+      system: typeof system === 'function' ? system() : system,
+      messages: [{role:'user', content:prompt}]
+    };
+    if (useSearch) {
+      body.tools = [{ type: 'web_search_20250305', name: 'web_search' }];
+    }
+    var res = await fetch('https://api.anthropic.com/v1/messages', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify(body)
+    });
+    var data = await res.json();
+    // Extract text from response (may include tool_use blocks)
+    var text = '';
+    if (data.content) {
+      data.content.forEach(function(block) {
+        if (block.type === 'text') text += block.text;
+      });
+    }
+    return text || (data.error ? 'Erro API: '+data.error.message : 'Sem resposta');
+  } catch(e) { return 'Erro: '+e.message; }
+}
+
+function toggleAgents() {
+  agentsOpen = !agentsOpen;
+  document.getElementById('agentsPanel').classList.toggle('open', agentsOpen);
+  document.getElementById('btnAgents').classList.toggle('active', agentsOpen);
+  if (agentsOpen && document.getElementById('apChat').children.length===0) {
+    apAddMsg('orchestrator','Sistema pronto. 5 agentes inicializados.\n\nDigite uma tarefa ou use os atalhos abaixo.');
+  }
+}
+
+function selAgent(id) {
+  selAgentId = id;
+  document.querySelectorAll('.acard').forEach(function(c){ c.classList.remove('sel'); });
+  var c = document.getElementById('ac-'+id);
+  if (c) c.classList.add('sel');
+}
+
+function apAddMsg(id, text, isUser) {
+  var chat = document.getElementById('apChat');
+  var info = AP_INFO[id]||{icon:'👤',name:id};
+  var d = document.createElement('div');
+  d.className = 'chat-msg'+(isUser?' right':'');
+  d.innerHTML = '<div class="chat-av">'+info.icon+'</div><div class="chat-bdy"><div class="chat-lbl">'+info.name.toUpperCase()+'</div><div class="chat-bbl">'+text.replace(/\n/g,'<br>')+'</div></div>';
+  chat.appendChild(d);
+  chat.scrollTop = chat.scrollHeight;
+  return d;
+}
+
+function apThinking(id) {
+  var chat = document.getElementById('apChat');
+  var info = AP_INFO[id]||{icon:'👤',name:id};
+  var d = document.createElement('div');
+  d.className = 'chat-msg';
+  d.innerHTML = '<div class="chat-av">'+info.icon+'</div><div class="chat-bdy"><div class="chat-lbl">'+info.name.toUpperCase()+'</div><div class="chat-bbl" style="color:var(--muted);font-style:italic">pensando <span class="tdots"><span></span><span></span><span></span></span></div></div>';
+  chat.appendChild(d);
+  chat.scrollTop = chat.scrollHeight;
+  return d;
+}
+
+function setAst(id, txt) { var e=document.getElementById('ast-'+id); if(e) e.textContent=txt; }
+
+async function runAgentTask() {
+  var task = document.getElementById('apTask').value.trim();
+  if (!task||apRunning) return;
+  apRunning = true;
+  document.getElementById('btnRunTask').disabled = true;
+  var agents = ['orchestrator','researcher','validator','corrector','user'];
+  var prev = task;
+  for (var i=0; i<agents.length; i++) {
+    var id = agents[i];
+    setAst(id,'executando...');
+    var t = apThinking(id);
+    var prompt = i===0
+      ? 'Tarefa: "'+task+'"\n\nCrie um plano de ação em até 100 palavras.'
+      : 'Com base em: "'+prev+'"\n\nExecute sua parte. Máximo 150 palavras.';
+    var useSearch = (id === 'researcher' || id === 'validator');
+    var resp = await callClaudeAgent(prompt, AP_SYS[id], useSearch);
+    t.remove();
+    apAddMsg(id, resp);
+    setAst(id,'concluído');
+    prev = resp;
+    await new Promise(function(r){setTimeout(r,300);});
+  }
+  apRunning = false;
+  document.getElementById('btnRunTask').disabled = false;
+}
+
+async function sendApMsg() {
+  var inp = document.getElementById('apUserIn');
+  var text = inp.value.trim();
+  if (!text||apRunning) return;
+  inp.value = ''; inp.style.height='auto';
+  apRunning = true;
+  apAddMsg('user', text, true);
+  setAst(selAgentId,'respondendo...');
+  var t = apThinking(selAgentId);
+  var useSearch = (selAgentId === 'researcher' || selAgentId === 'validator');
+  var resp = await callClaudeAgent(text, AP_SYS[selAgentId], useSearch);
+  t.remove();
+  apAddMsg(selAgentId, resp);
+  setAst(selAgentId,'aguardando');
+  apRunning = false;
+}
+
+function apQuick(text) {
+  document.getElementById('apTask').value = text;
+  runAgentTask();
+}
+
+document.getElementById('apUserIn').addEventListener('input', function(){
+  this.style.height='auto';
+  this.style.height=Math.min(this.scrollHeight,90)+'px';
+});
+
+
+// ── EDIT MODE ─────────────────────────────────────────────────────────────────
+var editMode = false;
+
+function toggleEdit() {
+  editMode = !editMode;
+  document.body.classList.toggle('editing', editMode);
+  var btn = document.getElementById('btnEdit');
+  btn.textContent = editMode ? '✅ Concluir' : '✏️ Editar';
+  btn.classList.toggle('editing', editMode);
+  if (editMode) {
+    document.getElementById('addName').focus();
+  }
+}
+
+function quickAddSong() {
+  var name = document.getElementById('addName').value.trim();
+  if (!name) { document.getElementById('addName').focus(); return; }
+  var artist = document.getElementById('addArtist').value.trim();
+  var key    = document.getElementById('addKey').value.trim();
+  var slug   = toSlug(name);
+  var aslug  = artist ? toSlug(artist) : '';
+  var url    = aslug
+    ? 'https://www.cifraclub.com.br/' + aslug + '/' + slug + '/'
+    : '';
+  var sl = setlists.find(function(s){ return s.id === activeSetId; });
+  if (!sl) return;
+  // Add to first show section
+  var sec = sl.sections.find(function(s){ return s.type === 'show'; });
+  if (!sec) { sec = { label: sl.name, type: 'show', songs: [] }; sl.sections.push(sec); }
+  var newSong = {
+    num: String(sec.songs.length + 1),
+    name: name, key: key, artist: artist, url: url
+  };
+  sec.songs.push(newSong);
+  save();
+  // Clear inputs
+  document.getElementById('addName').value = '';
+  document.getElementById('addArtist').value = '';
+  document.getElementById('addKey').value = '';
+  document.getElementById('addName').focus();
+  renderList();
+  toast('✅ "' + name + '" adicionada!');
+}
+
+function deleteSongByIndex(sec, idx) {
+  var song = sec.songs[idx];
+  if (!song) return;
+  if (!confirm('Remover "' + song.name + '"?')) return;
+  sec.songs.splice(idx, 1);
+  // Renumber
+  sec.songs.forEach(function(s, i){ if (!isNaN(parseInt(s.num))) s.num = String(i+1); });
+  save();
+  renderList();
+  toast('Música removida');
+}
+
+// Enter key on add inputs
+['addName','addArtist','addKey'].forEach(function(id) {
+  var el = document.getElementById(id);
+  if (el) el.addEventListener('keydown', function(e){ if(e.key==='Enter') quickAddSong(); });
+});
+
+</script>
+
+<!-- AGENTS PANEL -->
+<div class="agents-panel" id="agentsPanel">
+  <div class="ap-header">
+    <h2>🤖 Agentes</h2>
+    <button class="btn-close-ap" onclick="toggleAgents()">✕ Fechar</button>
+  </div>
+  <div class="ap-task-bar">
+    <input class="ap-task-input" id="apTask" placeholder="Ex: verificar todos os links..." value="Verificar e corrigir links do setlist"/>
+    <button class="btn-run-task" id="btnRunTask" onclick="runAgentTask()">▶ Executar</button>
+  </div>
+  <div class="agent-cards-row">
+    <div class="acard sel" style="--acolor:var(--accent)" id="ac-orchestrator" onclick="selAgent('orchestrator')"><div class="acard-icon">🎯</div><div class="acard-name">Orquestrador</div><div class="acard-st" id="ast-orchestrator">aguardando</div></div>
+    <div class="acard" style="--acolor:var(--blue)" id="ac-researcher" onclick="selAgent('researcher')"><div class="acard-icon">🔍</div><div class="acard-name">Pesquisador</div><div class="acard-st" id="ast-researcher">aguardando</div><div style="font-size:.6rem;color:var(--blue);margin-top:3px">🌐 web</div></div>
+    <div class="acard" style="--acolor:var(--green)" id="ac-validator" onclick="selAgent('validator')"><div class="acard-icon">✅</div><div class="acard-name">Validador</div><div class="acard-st" id="ast-validator">aguardando</div><div style="font-size:.6rem;color:var(--green);margin-top:3px">🌐 web</div></div>
+    <div class="acard" style="--acolor:var(--accent2)" id="ac-corrector" onclick="selAgent('corrector')"><div class="acard-icon">🔧</div><div class="acard-name">Corretor</div><div class="acard-st" id="ast-corrector">aguardando</div></div>
+    <div class="acard" style="--acolor:#9b72cf" id="ac-user" onclick="selAgent('user')"><div class="acard-icon">🎸</div><div class="acard-name">Usuário</div><div class="acard-st" id="ast-user">aguardando</div></div>
+  </div>
+  <div class="ap-chat" id="apChat"></div>
+  <div class="quick-acts">
+    <button class="qa-btn" onclick="apQuick('verificar e corrigir todos os links do setlist')">🔍 Verificar links</button>
+    <button class="qa-btn" onclick="apQuick('simular uso ao vivo e reportar problemas')">🎸 Simular ao vivo</button>
+    <button class="qa-btn" onclick="apQuick('listar músicas com artista suspeito ou URL incorreta')">⚠️ Listar suspeitos</button>
+    <button class="qa-btn" onclick="apQuick('quantas músicas tem o setlist atual e quais são as seções?')">📋 Resumo do set</button>
+    <button class="qa-btn" onclick="apQuick('qual é a primeira música do show?')">🎵 Primeira música</button>
+    <button class="qa-btn" onclick="apQuick('compare os setlists salvos e mostre músicas em comum')">🔀 Comparar sets</button>
+  </div>
+  <div class="ap-input-row">
+    <textarea class="ap-ta" id="apUserIn" placeholder="Converse com os agentes..." rows="1" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendApMsg()}"></textarea>
+    <button class="btn-send-ap" onclick="sendApMsg()">↑</button>
+  </div>
+</div>
+</body>
+</html>
