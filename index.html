@@ -119,52 +119,6 @@ body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSy
   .list-col::-webkit-scrollbar-thumb{background:var(--border);}
 }
 
-/* ── AGENTS PANEL */
-.btn-agents{background:var(--surf2);color:#9b72cf;border:1px solid var(--border);font-size:0.75rem;font-weight:700;padding:6px 12px;border-radius:6px;cursor:pointer;white-space:nowrap;transition:all .15s;}
-.btn-agents:hover,.btn-agents.active{border-color:#9b72cf;background:rgba(155,114,207,.1);}
-.agents-panel{display:none;position:fixed;inset:0;background:var(--bg);z-index:300;overflow-y:auto;flex-direction:column;}
-.agents-panel.open{display:flex;}
-.ap-header{position:sticky;top:0;background:var(--surf);border-bottom:1px solid var(--border);padding:12px 16px;display:flex;align-items:center;gap:10px;flex-shrink:0;}
-.ap-header h2{font-size:1rem;font-weight:700;color:var(--text);flex:1;}
-.btn-close-ap{background:var(--surf2);border:1px solid var(--border);color:var(--text);font-size:0.78rem;font-weight:600;padding:6px 14px;border-radius:6px;cursor:pointer;}
-.ap-task-bar{padding:10px 16px;border-bottom:1px solid var(--border);display:flex;gap:8px;flex-shrink:0;}
-.ap-task-input{flex:1;background:var(--surf2);border:1px solid var(--border);color:var(--text);font-size:0.85rem;padding:8px 12px;border-radius:8px;outline:none;}
-.ap-task-input:focus{border-color:var(--accent);}
-.btn-run-task{background:var(--accent);color:#000;border:none;font-size:0.8rem;font-weight:700;padding:9px 16px;border-radius:8px;cursor:pointer;white-space:nowrap;}
-.btn-run-task:disabled{opacity:.4;cursor:not-allowed;}
-.agent-cards-row{display:flex;gap:8px;overflow-x:auto;padding:10px 16px;border-bottom:1px solid var(--border);scrollbar-width:none;flex-shrink:0;}
-.agent-cards-row::-webkit-scrollbar{display:none;}
-.acard{background:var(--surf2);border:1px solid var(--border);border-radius:10px;padding:10px 12px;min-width:120px;flex-shrink:0;cursor:pointer;transition:all .15s;border-left:3px solid var(--acolor,var(--border));}
-.acard.sel,.acard:hover{background:var(--surf3);}
-.acard-icon{font-size:1.1rem;margin-bottom:3px;}
-.acard-name{font-size:0.75rem;font-weight:700;color:var(--text);}
-.acard-st{font-size:0.62rem;color:var(--muted);font-family:monospace;}
-.ap-chat{flex:1;overflow-y:auto;padding:12px 16px;display:flex;flex-direction:column;gap:10px;min-height:200px;}
-.ap-chat::-webkit-scrollbar{width:3px;}
-.ap-chat::-webkit-scrollbar-thumb{background:var(--border);}
-.chat-msg{display:flex;gap:8px;animation:fadeUp .2s ease;}
-@keyframes fadeUp{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
-.chat-msg.right{flex-direction:row-reverse;}
-.chat-av{width:28px;height:28px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:.85rem;flex-shrink:0;background:var(--surf2);border:1px solid var(--border);}
-.chat-bdy{max-width:82%;}
-.chat-msg.right .chat-bdy{align-items:flex-end;display:flex;flex-direction:column;}
-.chat-lbl{font-size:.6rem;color:var(--muted);font-weight:700;margin-bottom:2px;}
-.chat-bbl{background:var(--surf2);border:1px solid var(--border);border-radius:10px;padding:8px 12px;font-size:.8rem;line-height:1.55;color:var(--text);}
-.chat-msg.right .chat-bbl{background:var(--surf3);}
-.tdots span{display:inline-block;width:4px;height:4px;border-radius:50%;background:var(--muted);animation:td 1.1s infinite;margin:0 1px;}
-.tdots span:nth-child(2){animation-delay:.18s}.tdots span:nth-child(3){animation-delay:.36s}
-@keyframes td{0%,100%{opacity:.2}50%{opacity:1}}
-.quick-acts{padding:8px 16px;border-top:1px solid var(--border);display:flex;flex-wrap:wrap;gap:6px;flex-shrink:0;}
-.qa-btn{background:var(--surf2);border:1px solid var(--border);border-radius:6px;color:var(--muted);font-family:inherit;font-size:.72rem;padding:5px 10px;cursor:pointer;transition:all .12s;}
-.qa-btn:hover{border-color:var(--accent);color:var(--accent);}
-.ap-input-row{padding:10px 16px;border-top:1px solid var(--border);background:var(--surf);display:flex;gap:8px;align-items:flex-end;flex-shrink:0;}
-.ap-ta{flex:1;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:inherit;font-size:.85rem;padding:8px 12px;outline:none;resize:none;min-height:36px;max-height:90px;line-height:1.5;}
-.ap-ta:focus{border-color:#9b72cf;}
-.ap-ta::placeholder{color:var(--muted);}
-.btn-send-ap{background:#9b72cf;color:#fff;border:none;width:36px;height:36px;border-radius:8px;font-size:.9rem;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;}
-@media(min-width:700px){
-  .agents-panel{position:fixed;right:0;top:0;height:100vh;width:400px;inset:auto;right:0;top:0;border-left:1px solid var(--border);box-shadow:-4px 0 20px rgba(0,0,0,.4);}
-}
 
 /* ── EDIT SETLIST */
 .btn-edit-set{background:transparent;border:1px solid var(--border);color:var(--muted);font-size:0.72rem;font-weight:600;padding:4px 10px;border-radius:6px;cursor:pointer;margin-left:auto;flex-shrink:0;}
@@ -189,7 +143,7 @@ body:not(.editing) .add-song-bar{display:none;}
 <div class="top-bar">
   <div class="top-bar-row">
     <h1>Setlist</h1>
-    <button class="btn-new-set" onclick="openNewSetlist()">+ Novo</button><button class="btn-edit-set" id="btnEdit" onclick="toggleEdit()">✏️ Editar</button><button class="btn-agents" id="btnAgents" onclick="toggleAgents()">🤖 Agentes</button>
+    <button class="btn-new-set" onclick="openNewSetlist()">+ Novo</button><button class="btn-edit-set" id="btnEdit" onclick="toggleEdit()">✏️ Editar</button>
   </div>
   <div class="setlist-tabs" id="tabs"></div>
 </div>
@@ -263,20 +217,6 @@ body:not(.editing) .add-song-bar{display:none;}
 </div>
 
 <script>
-// ── ANTHROPIC API ─────────────────────────────────────────────────────────────
-async function callClaude(prompt) {
-  const res = await fetch('https://api.anthropic.com/v1/messages', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      model: 'claude-sonnet-4-20250514',
-      max_tokens: 1000,
-      messages: [{ role: 'user', content: prompt }]
-    })
-  });
-  const data = await res.json();
-  return data.content?.[0]?.text || '';
-}
 
 // ── STATE ─────────────────────────────────────────────────────────────────────
 let setlists = JSON.parse(localStorage.getItem('setlists') || 'null') || [defaultSetlist()];
@@ -572,7 +512,8 @@ async function handleFile(file) {
     } else if (file.type === 'application/pdf') {
       text = await readPDF(file);
     } else if (file.type.startsWith('image/')) {
-      text = await readImage(file);
+      setProcessingMsg('Imagens não suportadas. Use TXT ou PDF.');
+      return;
     }
   } catch(e) {
     setProcessingMsg('Erro ao ler arquivo. Tente TXT.');
@@ -627,47 +568,27 @@ async function readPDF(file) {
   });
 }
 
-async function readImage(file) {
-  // Convert to base64 and send to Claude vision
-  return new Promise(function(resolve) {
-    var reader = new FileReader();
-    reader.onload = async function(e) {
-      var b64 = e.target.result.split(',')[1];
-      var mediaType = file.type;
-      try {
-        var res = await fetch('https://api.anthropic.com/v1/messages', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            model: 'claude-sonnet-4-20250514',
-            max_tokens: 1000,
-            messages: [{
-              role: 'user',
-              content: [
-                { type: 'image', source: { type: 'base64', media_type: mediaType, data: b64 } },
-                { type: 'text', text: 'Transcreva todo o texto desta imagem exatamente como está.' }
-              ]
-            }]
-          })
-        });
-        var data = await res.json();
-        resolve(data.content?.[0]?.text || '');
-      } catch(e) { resolve(''); }
-    };
-    reader.readAsDataURL(file);
-  });
-}
 
-// ── ANALYZE SONGS WITH CLAUDE ─────────────────────────────────────────────────
+// ── ANALYZE SONGS (local parser) ──────────────────────────────────────────────
 async function analyzeSongs(text) {
-  var prompt = 'Analise este texto de setlist e extraia cada música com nome, tom (key) e artista se mencionado.\n\nTexto:\n' + text + '\n\nResponda APENAS com JSON array, sem markdown, sem explicação:\n[{"num":"1","name":"Nome da Música","key":"Am","artist":"Artista"},...]\n\nSe não souber o artista, deixe vazio. Se não houver tonalidade, deixe key vazio.';
-
-  var resp = await callClaude(prompt);
-  var clean = resp.replace(/```json|```/g, '').trim();
-  // Find JSON array in response
-  var match = clean.match(/\[[\s\S]*\]/);
-  if (!match) return [];
-  return JSON.parse(match[0]);
+  var lines = text.split(/\r?\n/).map(function(l){ return l.trim(); }).filter(Boolean);
+  var songs = [];
+  var num = 1;
+  lines.forEach(function(line) {
+    if (/^[-=]{3,}$/.test(line) || /^(show|pausa|setlist|parte)/i.test(line)) return;
+    var clean = line.replace(/^\d+[\.)\s]+/, '');
+    if (!clean) return;
+    var key = '';
+    var keyMatch = clean.match(/\s+-\s+([A-G][#b]?m?)\s*$/) || clean.match(/\(([A-G][#b]?m?)\)\s*$/);
+    if (keyMatch) { key = keyMatch[1]; clean = clean.replace(keyMatch[0], '').trim(); }
+    var artist = '';
+    var parts = clean.split(/\s*\|\s*/);
+    var name = parts[0].trim();
+    if (parts.length > 1) artist = parts[1].trim();
+    if (!name) return;
+    songs.push({ num: String(num++), name: name, key: key, artist: artist, url: '' });
+  });
+  return songs;
 }
 
 // ── SEARCH CIFRA CLUB LINKS ────────────────────────────────────────────────────
@@ -821,185 +742,6 @@ zone.addEventListener('drop', function(e){
 renderTabs();
 renderList();
 
-// ── AGENTS ────────────────────────────────────────────────────────────────────
-var agentsOpen = false;
-var selAgentId = 'orchestrator';
-var apRunning = false;
-
-function getSetlistContext() {
-  // Active setlist — full detail
-  var sl = setlists.find(function(s){ return s.id === activeSetId; });
-  if (!sl) return 'Nenhum setlist ativo.';
-  var lines = [];
-  sl.sections.forEach(function(sec){
-    if (sec.type === 'pausa') { lines.push('--- PAUSA ---'); return; }
-    lines.push('['+sec.label+']');
-    sec.songs.forEach(function(s){
-      lines.push(s.num+'. '+s.name+' | '+( s.artist||'?')+' | Tom:'+(s.key||'?')+' | '+(s.url||'SEM URL'));
-    });
-  });
-  var total = lines.filter(function(l){ return /^\d/.test(l); }).length;
-  var ctx = '=== SETLIST ATIVO: "'+sl.name+'" ('+total+' músicas) ===\n'+lines.join('\n');
-
-  // Other setlists — summary
-  var others = setlists.filter(function(s){ return s.id !== activeSetId; });
-  if (others.length > 0) {
-    ctx += '\n\n=== OUTROS SETLISTS SALVOS ===';
-    others.forEach(function(other){
-      var otherSongs = [];
-      other.sections.forEach(function(sec){
-        if (sec.type !== 'pausa') sec.songs.forEach(function(s){ otherSongs.push(s.name+' ('+s.artist+')'); });
-      });
-      ctx += '\n"'+other.name+'" ('+otherSongs.length+' músicas): '+otherSongs.slice(0,8).join(', ')+(otherSongs.length>8?' ...':'');
-    });
-  }
-  return ctx;
-}
-
-var AP_SYS = {
-  orchestrator: function(){
-    return 'Você é o Orquestrador do app Setlist Manager. Tem acesso a TODOS os setlists salvos. Responda perguntas sobre qualquer setlist, compare repertórios, identifique músicas em comum. Seja direto, máx 120 palavras.\n\n'+getSetlistContext();
-  },
-  researcher: function(){
-    return 'Você é o Pesquisador do Cifra Club com acesso a TODOS os setlists. Use web_search para verificar URLs. Pode comparar músicas entre setlists, identificar duplicatas, sugerir links corretos. Máx 150 palavras.\n\n'+getSetlistContext();
-  },
-  validator: function(){
-    return 'Você é o Validador com acesso a TODOS os setlists. Verifica URLs via web, indica ✅ OK ⚠️ SUSPEITO ❌ ERRO. Pode cruzar dados entre setlists para encontrar inconsistências. Máx 150 palavras.\n\n'+getSetlistContext();
-  },
-  corrector: function(){
-    return 'Você é o Corretor com acesso a TODOS os setlists. Aplica correções no setlist ativo e pode reaproveitar dados corretos de outros setlists. Informe correção exata (URL formato cifraclub.com.br/artista/musica). Máx 150 palavras.\n\n'+getSetlistContext();
-  },
-  user: function(){
-    return 'Você é um músico que conhece TODOS os setlists salvos. Responde perguntas sobre qualquer repertório, compara shows, comenta sobre músicas. Seja coloquial. Máx 80 palavras.\n\n'+getSetlistContext();
-  }
-};
-var AP_INFO = {
-  orchestrator:{icon:'🎯',name:'Orquestrador'},
-  researcher:{icon:'🔍',name:'Pesquisador'},
-  validator:{icon:'✅',name:'Validador'},
-  corrector:{icon:'🔧',name:'Corretor'},
-  user:{icon:'🎸',name:'Usuário'}
-};
-
-async function callClaudeAgent(prompt, system, useSearch) {
-  try {
-    var body = {
-      model: 'claude-sonnet-4-20250514',
-      max_tokens: 1000,
-      system: typeof system === 'function' ? system() : system,
-      messages: [{role:'user', content:prompt}]
-    };
-    if (useSearch) {
-      body.tools = [{ type: 'web_search_20250305', name: 'web_search' }];
-    }
-    var res = await fetch('https://api.anthropic.com/v1/messages', {
-      method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify(body)
-    });
-    var data = await res.json();
-    // Extract text from response (may include tool_use blocks)
-    var text = '';
-    if (data.content) {
-      data.content.forEach(function(block) {
-        if (block.type === 'text') text += block.text;
-      });
-    }
-    return text || (data.error ? 'Erro API: '+data.error.message : 'Sem resposta');
-  } catch(e) { return 'Erro: '+e.message; }
-}
-
-function toggleAgents() {
-  agentsOpen = !agentsOpen;
-  document.getElementById('agentsPanel').classList.toggle('open', agentsOpen);
-  document.getElementById('btnAgents').classList.toggle('active', agentsOpen);
-  if (agentsOpen && document.getElementById('apChat').children.length===0) {
-    apAddMsg('orchestrator','Sistema pronto. 5 agentes inicializados.\n\nDigite uma tarefa ou use os atalhos abaixo.');
-  }
-}
-
-function selAgent(id) {
-  selAgentId = id;
-  document.querySelectorAll('.acard').forEach(function(c){ c.classList.remove('sel'); });
-  var c = document.getElementById('ac-'+id);
-  if (c) c.classList.add('sel');
-}
-
-function apAddMsg(id, text, isUser) {
-  var chat = document.getElementById('apChat');
-  var info = AP_INFO[id]||{icon:'👤',name:id};
-  var d = document.createElement('div');
-  d.className = 'chat-msg'+(isUser?' right':'');
-  d.innerHTML = '<div class="chat-av">'+info.icon+'</div><div class="chat-bdy"><div class="chat-lbl">'+info.name.toUpperCase()+'</div><div class="chat-bbl">'+text.replace(/\n/g,'<br>')+'</div></div>';
-  chat.appendChild(d);
-  chat.scrollTop = chat.scrollHeight;
-  return d;
-}
-
-function apThinking(id) {
-  var chat = document.getElementById('apChat');
-  var info = AP_INFO[id]||{icon:'👤',name:id};
-  var d = document.createElement('div');
-  d.className = 'chat-msg';
-  d.innerHTML = '<div class="chat-av">'+info.icon+'</div><div class="chat-bdy"><div class="chat-lbl">'+info.name.toUpperCase()+'</div><div class="chat-bbl" style="color:var(--muted);font-style:italic">pensando <span class="tdots"><span></span><span></span><span></span></span></div></div>';
-  chat.appendChild(d);
-  chat.scrollTop = chat.scrollHeight;
-  return d;
-}
-
-function setAst(id, txt) { var e=document.getElementById('ast-'+id); if(e) e.textContent=txt; }
-
-async function runAgentTask() {
-  var task = document.getElementById('apTask').value.trim();
-  if (!task||apRunning) return;
-  apRunning = true;
-  document.getElementById('btnRunTask').disabled = true;
-  var agents = ['orchestrator','researcher','validator','corrector','user'];
-  var prev = task;
-  for (var i=0; i<agents.length; i++) {
-    var id = agents[i];
-    setAst(id,'executando...');
-    var t = apThinking(id);
-    var prompt = i===0
-      ? 'Tarefa: "'+task+'"\n\nCrie um plano de ação em até 100 palavras.'
-      : 'Com base em: "'+prev+'"\n\nExecute sua parte. Máximo 150 palavras.';
-    var useSearch = (id === 'researcher' || id === 'validator');
-    var resp = await callClaudeAgent(prompt, AP_SYS[id], useSearch);
-    t.remove();
-    apAddMsg(id, resp);
-    setAst(id,'concluído');
-    prev = resp;
-    await new Promise(function(r){setTimeout(r,300);});
-  }
-  apRunning = false;
-  document.getElementById('btnRunTask').disabled = false;
-}
-
-async function sendApMsg() {
-  var inp = document.getElementById('apUserIn');
-  var text = inp.value.trim();
-  if (!text||apRunning) return;
-  inp.value = ''; inp.style.height='auto';
-  apRunning = true;
-  apAddMsg('user', text, true);
-  setAst(selAgentId,'respondendo...');
-  var t = apThinking(selAgentId);
-  var useSearch = (selAgentId === 'researcher' || selAgentId === 'validator');
-  var resp = await callClaudeAgent(text, AP_SYS[selAgentId], useSearch);
-  t.remove();
-  apAddMsg(selAgentId, resp);
-  setAst(selAgentId,'aguardando');
-  apRunning = false;
-}
-
-function apQuick(text) {
-  document.getElementById('apTask').value = text;
-  runAgentTask();
-}
-
-document.getElementById('apUserIn').addEventListener('input', function(){
-  this.style.height='auto';
-  this.style.height=Math.min(this.scrollHeight,90)+'px';
-});
 
 
 // ── EDIT MODE ─────────────────────────────────────────────────────────────────
@@ -1066,36 +808,5 @@ function deleteSongByIndex(sec, idx) {
 
 </script>
 
-<!-- AGENTS PANEL -->
-<div class="agents-panel" id="agentsPanel">
-  <div class="ap-header">
-    <h2>🤖 Agentes</h2>
-    <button class="btn-close-ap" onclick="toggleAgents()">✕ Fechar</button>
-  </div>
-  <div class="ap-task-bar">
-    <input class="ap-task-input" id="apTask" placeholder="Ex: verificar todos os links..." value="Verificar e corrigir links do setlist"/>
-    <button class="btn-run-task" id="btnRunTask" onclick="runAgentTask()">▶ Executar</button>
-  </div>
-  <div class="agent-cards-row">
-    <div class="acard sel" style="--acolor:var(--accent)" id="ac-orchestrator" onclick="selAgent('orchestrator')"><div class="acard-icon">🎯</div><div class="acard-name">Orquestrador</div><div class="acard-st" id="ast-orchestrator">aguardando</div></div>
-    <div class="acard" style="--acolor:var(--blue)" id="ac-researcher" onclick="selAgent('researcher')"><div class="acard-icon">🔍</div><div class="acard-name">Pesquisador</div><div class="acard-st" id="ast-researcher">aguardando</div><div style="font-size:.6rem;color:var(--blue);margin-top:3px">🌐 web</div></div>
-    <div class="acard" style="--acolor:var(--green)" id="ac-validator" onclick="selAgent('validator')"><div class="acard-icon">✅</div><div class="acard-name">Validador</div><div class="acard-st" id="ast-validator">aguardando</div><div style="font-size:.6rem;color:var(--green);margin-top:3px">🌐 web</div></div>
-    <div class="acard" style="--acolor:var(--accent2)" id="ac-corrector" onclick="selAgent('corrector')"><div class="acard-icon">🔧</div><div class="acard-name">Corretor</div><div class="acard-st" id="ast-corrector">aguardando</div></div>
-    <div class="acard" style="--acolor:#9b72cf" id="ac-user" onclick="selAgent('user')"><div class="acard-icon">🎸</div><div class="acard-name">Usuário</div><div class="acard-st" id="ast-user">aguardando</div></div>
-  </div>
-  <div class="ap-chat" id="apChat"></div>
-  <div class="quick-acts">
-    <button class="qa-btn" onclick="apQuick('verificar e corrigir todos os links do setlist')">🔍 Verificar links</button>
-    <button class="qa-btn" onclick="apQuick('simular uso ao vivo e reportar problemas')">🎸 Simular ao vivo</button>
-    <button class="qa-btn" onclick="apQuick('listar músicas com artista suspeito ou URL incorreta')">⚠️ Listar suspeitos</button>
-    <button class="qa-btn" onclick="apQuick('quantas músicas tem o setlist atual e quais são as seções?')">📋 Resumo do set</button>
-    <button class="qa-btn" onclick="apQuick('qual é a primeira música do show?')">🎵 Primeira música</button>
-    <button class="qa-btn" onclick="apQuick('compare os setlists salvos e mostre músicas em comum')">🔀 Comparar sets</button>
-  </div>
-  <div class="ap-input-row">
-    <textarea class="ap-ta" id="apUserIn" placeholder="Converse com os agentes..." rows="1" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendApMsg()}"></textarea>
-    <button class="btn-send-ap" onclick="sendApMsg()">↑</button>
-  </div>
-</div>
 </body>
 </html>
