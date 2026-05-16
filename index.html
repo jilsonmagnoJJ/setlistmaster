@@ -158,6 +158,7 @@ body:not(.editing) .add-song-bar{display:none;}
   <input id="addName" placeholder="Nome da música..." autocomplete="off"/>
   <input id="addArtist" placeholder="Artista..." style="max-width:130px" autocomplete="off"/>
   <input id="addKey" placeholder="Tom" style="max-width:60px" autocomplete="off"/>
+  <input id="addUrl" placeholder="Link (opcional)" style="max-width:160px" autocomplete="off"/>
   <button class="btn-add-quick" onclick="quickAddSong()">＋</button>
 </div>
 
@@ -611,6 +612,7 @@ async function searchLinks(songs) {
 
 function toSlug(str) {
   return str.toLowerCase()
+    .replace(/ç/g, 'c').replace(/ã/g, 'a').replace(/õ/g, 'o')
     .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
     .replace(/[^a-z0-9\s-]/g, '')
     .trim().replace(/\s+/g, '-');
@@ -763,11 +765,12 @@ function quickAddSong() {
   if (!name) { document.getElementById('addName').focus(); return; }
   var artist = document.getElementById('addArtist').value.trim();
   var key    = document.getElementById('addKey').value.trim();
+  var manualUrl = document.getElementById('addUrl').value.trim();
   var slug   = toSlug(name);
   var aslug  = artist ? toSlug(artist) : '';
-  var url    = aslug
+  var url    = manualUrl ? manualUrl : aslug
     ? 'https://www.cifraclub.com.br/' + aslug + '/' + slug + '/'
-    : '';
+    : 'https://www.cifraclub.com.br/' + slug + '/';
   var sl = setlists.find(function(s){ return s.id === activeSetId; });
   if (!sl) return;
   // Add to first show section
@@ -783,6 +786,7 @@ function quickAddSong() {
   document.getElementById('addName').value = '';
   document.getElementById('addArtist').value = '';
   document.getElementById('addKey').value = '';
+  document.getElementById('addUrl').value = '';
   document.getElementById('addName').focus();
   renderList();
   toast('✅ "' + name + '" adicionada!');
@@ -801,7 +805,7 @@ function deleteSongByIndex(sec, idx) {
 }
 
 // Enter key on add inputs
-['addName','addArtist','addKey'].forEach(function(id) {
+['addName','addArtist','addKey','addUrl'].forEach(function(id) {
   var el = document.getElementById(id);
   if (el) el.addEventListener('keydown', function(e){ if(e.key==='Enter') quickAddSong(); });
 });
