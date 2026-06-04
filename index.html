@@ -219,7 +219,7 @@ body:not(.editing) .add-song-bar{display:none;}
 <script>
 
 // ── STATE ─────────────────────────────────────────────────────────────────────
-let setlists = JSON.parse(localStorage.getItem('setlists') || 'null') || [defaultSetlist(), miranteEsperiaSetlist()];
+let setlists = JSON.parse(localStorage.getItem('setlists') || 'null') || [defaultSetlist(), quartetoSaoJorgeSetlist()];
 let activeSetId = setlists[0].id;
 let activeRow = null;
 let cifraWin = null;
@@ -339,68 +339,44 @@ function defaultSetlist() {
 }
 
 
-function miranteEsperiaSetlist() {
+function quartetoSaoJorgeSetlist() {
   return {
     id: uid(),
-    name: 'Mirante Esperia',
+    name: 'Quarteto São Jorge Casamento',
     sections: [
-     {label:'SHOW PRINCIPAL', type:'show', songs:[
-      {num:'1',   name:'Partido Livre',                        key:'F',    artist:'',                  url:''},
-      {num:'2a',  name:'Mania de Voce',                        key:'Em',   artist:'Rita Lee',           url:'https://www.cifraclub.com.br/rita-lee/mania-de-voce/'},
-      {num:'2b',  name:'Cabide',                               key:'',     artist:'Martnalia',          url:'https://www.cifraclub.com.br/martnalia/cabide/'},
-      {num:'3a',  name:'O Que E o Amor',                       key:'',     artist:'Arlindo Cruz',       url:'https://www.cifraclub.com.br/arlindo-cruz/o-que-o-amor/'},
-      {num:'3b',  name:'O Bem',                                key:'',     artist:'Arlindo Cruz',       url:'https://www.cifraclub.com.br/arlindo-cruz/o-bem/'},
-      {num:'3c',  name:'Alem do Meu Querer',                   key:'',     artist:'Arlindo Cruz',       url:'https://www.cifraclub.com.br/arlindo-cruz/alem-do-meu-querer/'},
-      {num:'3d',  name:'Sera que E Amor',                      key:'',     artist:'Arlindo Cruz',       url:'https://www.cifraclub.com.br/arlindo-cruz/sera-que-amor/'},
-      {num:'4a',  name:'Farol das Estrelas',                   key:'',     artist:'Soweto',             url:'https://www.cifraclub.com.br/soweto/farol-das-estrelas/'},
-      {num:'4b',  name:'Desliga e Vem',                        key:'',     artist:'Exaltasamba',        url:'https://www.cifraclub.com.br/exaltasamba-musicas/desliga-vem/'},
-      {num:'4c',  name:'Primeira Namorada',                    key:'',     artist:'Sorriso Maroto',     url:'https://www.cifraclub.com.br/sorriso-maroto/a-primeira-namorada/'},
-      {num:'5a',  name:'Pescador de Ilusoes',                  key:'Am',   artist:'O Rappa',            url:'https://www.cifraclub.com.br/o-rappa/pescador-de-ilusoes/'},
-      {num:'5b',  name:'Minha Alma',                           key:'Am',   artist:'O Rappa',            url:'https://www.cifraclub.com.br/o-rappa/minha-alma/'},
-      {num:'6',   name:'Maneiras',                             key:'Em',   artist:'Zeca Pagodinho',     url:'https://www.cifraclub.com.br/zeca-pagodinho/maneiras/'},
-      {num:'7',   name:'Retrato Cantado de um Amor',           key:'Dm',   artist:'Fundo de Quintal',   url:'https://www.cifraclub.com.br/fundo-de-quintal/retrato-cantado-de-um-amor/'},
-      {num:'8',   name:'Brilho no Olhar',                      key:'D',    artist:'Reinaldo',           url:'https://www.cifraclub.com.br/reinaldo/brilho-no-olhar/'},
-      {num:'9a',  name:'Caju',                                 key:'Em',   artist:'Liniker',            url:'https://www.cifraclub.com.br/liniker/caju/'},
-      {num:'9b',  name:'Insegurança',                          key:'',     artist:'Pixote',             url:'https://www.cifraclub.com.br/pixote/inseguranca/'},
-      {num:'9c',  name:'Meu Amor',                             key:'',     artist:'',                   url:''},
-      {num:'10a', name:'Menina Mulher da Pele Preta',          key:'C#m',  artist:'Jorge Ben Jor',      url:'https://www.cifraclub.com.br/jorge-ben-jor/menina-mulher-da-pele-preta/'},
-      {num:'10b', name:'O Telefone Tocou Novamente',           key:'C#m',  artist:'Jorge Ben Jor',      url:'https://www.cifraclub.com.br/jorge-ben-jor/o-telefone-tocou-novamente/'},
-      {num:'10c', name:'Mama Africa',                          key:'Am',   artist:'Jorge Ben Jor',      url:'https://www.cifraclub.com.br/jorge-ben-jor/mama-africa/'},
-      {num:'10d', name:'Filho Maravilha',                      key:'Em',   artist:'Jorge Ben Jor',      url:'https://www.cifraclub.com.br/jorge-ben-jor/filho-maravilha/'},
-      {num:'10e', name:'Por Causa de Voce Menina',             key:'C',    artist:'Jorge Ben Jor',      url:'https://www.cifraclub.com.br/jorge-ben-jor/por-causa-de-voce-menina/'},
-      {num:'10f', name:'Chove Chuva',                          key:'G',    artist:'Jorge Ben Jor',      url:'https://www.cifraclub.com.br/jorge-ben-jor/chove-chuva/'},
-      {num:'10g', name:'Mas Que Nada',                         key:'Am',   artist:'Jorge Ben Jor',      url:'https://www.cifraclub.com.br/jorge-ben-jor/mas-que-nada/'},
-      {num:'11a', name:'Anunciacao',                           key:'',     artist:'Alceu Valenca',      url:'https://www.cifraclub.com.br/alceu-valenca/anunciacao/'},
-      {num:'11b', name:'So Quero Um Xodo',                     key:'',     artist:'Dominguinhos',       url:'https://www.cifraclub.com.br/dominguinhos/so-quero-um-xodo/'},
-      {num:'12',  name:'Ela Quer Patifaria',                   key:'',     artist:'Patifaria Popular',  url:''},
-      {num:'13a', name:'Fato Consumado',                       key:'',     artist:'Djavan',             url:'https://www.cifraclub.com.br/djavan/fato-consumado/'},
-      {num:'13b', name:'Flor de Liz',                          key:'',     artist:'Djavan',             url:'https://www.cifraclub.com.br/djavan/flor-de-lis/'},
-      {num:'13c', name:'Final Feliz',                          key:'',     artist:'Jorge Vercilo',      url:'https://www.cifraclub.com.br/jorge-vercilo/final-feliz/'},
-      {num:'13d', name:'O Show Tem Que Continuar',             key:'',     artist:'Fundo de Quintal',   url:'https://www.cifraclub.com.br/fundo-de-quintal/o-show-tem-que-continuar/'},
-      {num:'13e', name:'Meu Lugar',                            key:'',     artist:'Arlindo Cruz',       url:'https://www.cifraclub.com.br/arlindo-cruz/o-meu-lugar/'},
-     ]},
-     {label:'PAUSA', type:'pausa', songs:[]},
-     {label:'POS PAUSA', type:'show', songs:[
-      {num:'14',  name:'Positividade',                         key:'G',    artist:'Nunez',              url:'https://www.cifraclub.com.br/nunez/positividade/'},
-      {num:'15a', name:'Sorri Sou Rei',                        key:'',     artist:'Natiruts',           url:'https://www.cifraclub.com.br/natiruts/sorri-sou-rei/'},
-      {num:'15b', name:'Quero Ser Feliz Tambem',               key:'',     artist:'Natiruts',           url:'https://www.cifraclub.com.br/natiruts/quero-ser-feliz-tambem/'},
-      {num:'16a', name:'Andei So',                             key:'',     artist:'Natiruts',           url:'https://www.cifraclub.com.br/natiruts/andei-so/'},
-      {num:'16b', name:'Zoio de Lula',                         key:'C#m',  artist:'Charlie Brown Jr',   url:'https://www.cifraclub.com.br/charlie-brown-jr/zoio-de-lula/'},
-      {num:'16c', name:'Pontes Indestrutíveis',                key:'Dm',   artist:'Charlie Brown Jr',   url:'https://www.cifraclub.com.br/charlie-brown-jr/pontes-indestrutiveis/'},
-      {num:'17',  name:'Seq Anos 90',                          key:'',     artist:'(pout pourri)',      url:''},
-      {num:'18',  name:'Seq Sertanejo',                        key:'',     artist:'(pout pourri)',      url:''},
-      {num:'19',  name:'Leal',                                 key:'C#m',  artist:'Djonga',             url:'https://www.cifraclub.com.br/djonga/leal/'},
-      {num:'20a', name:'Desabafo',                             key:'',     artist:'Fundo de Quintal',   url:'https://www.cifraclub.com.br/fundo-de-quintal/desabafo/'},
-      {num:'20b', name:'Qual E',                               key:'',     artist:'Grupo Revelacao',    url:'https://www.cifraclub.com.br/revelacao/qual-e/'},
-      {num:'20c', name:'Patifaria Popular',                    key:'',     artist:'Fundo de Quintal',   url:'https://www.cifraclub.com.br/fundo-de-quintal/patifaria-popular/'},
-      {num:'21',  name:'Deixa Alagar',                         key:'',     artist:'Grupo Revelacao',    url:'https://www.cifraclub.com.br/revelacao/deixa-alagar/'},
-      {num:'22a', name:'Ultima Noite',                         key:'C',    artist:'Araketu',            url:'https://www.cifraclub.com.br/araketu/ultima-noite/'},
-      {num:'22b', name:'Mal Acostumado',                       key:'Cm',   artist:'Araketu',            url:'https://www.cifraclub.com.br/araketu/mal-acostumado/'},
-      {num:'23a', name:'Tapao na Raba',                        key:'Dm',   artist:'Ze Felipe',          url:'https://www.cifraclub.com.br/ze-felipe/tapao-na-raba/'},
-      {num:'23b', name:'Rapariga Bom Demais',                  key:'Dm',   artist:'Joao Gomes',         url:'https://www.cifraclub.com.br/joao-gomes/rapariga-bom-demais/'},
-      {num:'24',  name:'Natiruts Reggaepower',                 key:'F#m',  artist:'Natiruts',           url:'https://www.cifraclub.com.br/natiruts/natiruts-reggae-power/'},
-      {num:'25',  name:'Ze do Caroco',                         key:'',     artist:'Leci Brandao',       url:'https://www.cifraclub.com.br/leci-brandao/ze-do-caroco/'},
-      {num:'26',  name:'FECHAMENTO - Taj Mahal',               key:'G',    artist:'Jorge Ben Jor',      url:'https://www.cifraclub.com.br/jorge-ben-jor/taj-mahal/'},
+     {label:'SHOW', type:'show', songs:[
+      {num:'1',  name:'Várias Queixas',              key:'',   artist:'Gilsons',              url:'https://www.cifraclub.com.br/gilsons/varias-queixas/'},
+      {num:'2',  name:'Sina',                        key:'',   artist:'Djavan',               url:'https://www.cifraclub.com.br/djavan/sina/'},
+      {num:'3',  name:'Alagados',                    key:'',   artist:'Os Paralamas do Sucesso', url:'https://www.cifraclub.com.br/os-paralamas-do-sucesso/alagados/'},
+      {num:'4',  name:'Gostava Tanto de Você',       key:'',   artist:'Tim Maia',             url:'https://www.cifraclub.com.br/tim-maia/gostava-tanto-de-voce/'},
+      {num:'5',  name:'Vamos Fugir',                 key:'',   artist:'Skank',                url:'https://www.cifraclub.com.br/skank/vamos-fugir/'},
+      {num:'6',  name:'Toda Forma de Amor',          key:'',   artist:'Lulu Santos',          url:'https://www.cifraclub.com.br/lulu-santos/toda-forma-de-amor/'},
+      {num:'7',  name:'Meu Erro',                    key:'',   artist:'Os Paralamas do Sucesso', url:'https://www.cifraclub.com.br/os-paralamas-do-sucesso/meu-erro/'},
+      {num:'8',  name:'Ciúmes',                      key:'',   artist:'Ultraje a Rigor',      url:'https://www.cifraclub.com.br/ultraje-a-rigor/ciumes/'},
+      {num:'9',  name:'Exagerado',                   key:'',   artist:'Cazuza',               url:'https://www.cifraclub.com.br/cazuza/exagerado/'},
+      {num:'10', name:'Garota Nacional',             key:'',   artist:'Skank',                url:'https://www.cifraclub.com.br/skank/garota-nacional/'},
+      {num:'11', name:'Malandragem',                 key:'',   artist:'Cássia Eller',         url:'https://www.cifraclub.com.br/cassia-eller/malandragem/'},
+      {num:'12', name:'Não Quero Dinheiro',          key:'',   artist:'Tim Maia',             url:'https://www.cifraclub.com.br/tim-maia/nao-quero-dinheiro/'},
+      {num:'13', name:'Sonífera Ilha',               key:'',   artist:'Titãs',                url:'https://www.cifraclub.com.br/titas/sonifera-ilha/'},
+      {num:'14', name:'Gita',                        key:'',   artist:'Raul Seixas',          url:'https://www.cifraclub.com.br/raul-seixas/gita/'},
+      {num:'15', name:'O Descobridor dos Sete Mares',key:'',   artist:'Tim Maia',             url:'https://www.cifraclub.com.br/tim-maia/o-descobridor-dos-sete-mares/'},
+      {num:'16', name:'Saideira',                    key:'',   artist:'Skank',                url:'https://www.cifraclub.com.br/skank/saideira/'},
+      {num:'17', name:'Aquele Abraço',               key:'',   artist:'Gilberto Gil',         url:'https://www.cifraclub.com.br/gilberto-gil/aquele-abraco/'},
+      {num:'18', name:'Você Não Entende Nada',       key:'',   artist:'Caetano Veloso',       url:'https://www.cifraclub.com.br/caetano-veloso/voce-nao-entende-nada/'},
+      {num:'19', name:'Pé na Areia',                 key:'',   artist:'Diogo Nogueira',       url:'https://www.cifraclub.com.br/diogo-nogueira/pe-na-areia/'},
+      {num:'20', name:'Vou Festejar',                key:'',   artist:'Beth Carvalho',        url:'https://www.cifraclub.com.br/beth-carvalho/vou-festejar/'},
+      {num:'21', name:'Toda Menina Baiana',          key:'',   artist:'Gilberto Gil',         url:'https://www.cifraclub.com.br/gilberto-gil/toda-menina-baiana/'},
+      {num:'22', name:'Não Enche',                   key:'',   artist:'Caetano Veloso',       url:'https://www.cifraclub.com.br/caetano-veloso/nao-enche/'},
+      {num:'23', name:'Beleza Rara',                 key:'',   artist:'Banda Eva',            url:'https://www.cifraclub.com.br/banda-eva/beleza-rara/'},
+      {num:'24', name:'Anunciação',                  key:'',   artist:'Alceu Valença',        url:'https://www.cifraclub.com.br/alceu-valenca/anunciacao/'},
+      {num:'25', name:'Beija-Flor',                  key:'',   artist:'Timbalada',            url:'https://www.cifraclub.com.br/timbalada/beija-flor/'},
+      {num:'26', name:'Minha Pequena Eva',           key:'',   artist:'Banda Eva',            url:'https://www.cifraclub.com.br/banda-eva/minha-pequena-eva/'},
+      {num:'27', name:'Milla',                       key:'',   artist:'Netinho',              url:'https://www.cifraclub.com.br/netinho/milla/'},
+      {num:'28', name:'Sou Praieiro',                key:'',   artist:'Jammil e Uma Noites',  url:'https://www.cifraclub.com.br/jammil-e-uma-noites/praieiro/'},
+      {num:'29', name:'Taj Mahal',                   key:'',   artist:'Jorge Ben Jor',        url:'https://www.cifraclub.com.br/jorge-ben-jor/taj-mahal/'},
+      {num:'30', name:'Filho Maravilha',             key:'',   artist:'Jorge Ben Jor',        url:'https://www.cifraclub.com.br/jorge-ben-jor/filho-maravilha/'},
+      {num:'31', name:'País Tropical',               key:'',   artist:'Jorge Ben Jor',        url:'https://www.cifraclub.com.br/jorge-ben-jor/pais-tropical/'},
+      {num:'32', name:'Spirogyra Story',             key:'',   artist:'Jorge Ben Jor',        url:'https://www.cifraclub.com.br/jorge-ben-jor/spirogyra-story/'},
      ]},
     ]
   };
